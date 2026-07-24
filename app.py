@@ -6,41 +6,73 @@ import plotly.graph_objects as go
 # --- 페이지 기본 설정 ---
 st.set_page_config(page_title="선재/이형재 인발 소성가공 종합 산출 도구", layout="wide")
 
-# --- 탭(Tab) 글자 크기(20px) 및 굵기(Bold) 커스텀 CSS ---
+# --- 차분하고 가독성 높은 다크 인더스트리얼 테마 (CSS) ---
 st.markdown("""
     <style>
-    /* 1. 기본 탭 글자 크기, 굵기, 색상 대폭 강화 */
-    button[data-baseweb="tab"] {
-        font-size: 20px !important;
-        font-weight: 800 !important;
-        color: #4b5563 !important;
-        padding-top: 10px !important;
-        padding-bottom: 10px !important;
-        padding-left: 20px !important;
-        padding-right: 20px !important;
+    /* 전체 배경 차분한 어두운 톤 설정 */
+    .stApp {
+        background-color: #111827 !important;
+        color: #f3f4f6 !important;
     }
     
-    /* 2. 현재 선택된(활성화된) 탭 강조 스타일 */
+    /* 헤더 및 일반 텍스트 색상 */
+    h1, h2, h3, h4, h5, h6, p, label, .stMarkdown {
+        color: #f9fafb !important;
+    }
+    
+    /* 탭(Tab) 스타일 대폭 강화 (가시성 극대화) */
+    button[data-baseweb="tab"] {
+        font-size: 19px !important;
+        font-weight: 800 !important;
+        color: #9ca3af !important;
+        background-color: #1f2937 !important;
+        border-radius: 8px 8px 0px 0px !important;
+        margin-right: 6px !important;
+        padding: 12px 24px !important;
+        border: 1px solid #374151 !important;
+    }
+    
+    /* 선택된 탭 강조 */
     button[data-baseweb="tab"][aria-selected="true"] {
-        color: #1d4ed8 !important;
-        border-bottom-color: #1d4ed8 !important;
-        border-bottom-width: 4px !important;
+        color: #ffffff !important;
+        background-color: #2563eb !important;
+        border-bottom: 4px solid #60a5fa !important;
+    }
+    
+    /* 지표 카드(Metric) 다크 모드 스타일 */
+    [data-testid="stMetric"] {
+        background-color: #1f2937 !important;
+        border: 1px solid #374151 !important;
+        border-radius: 10px !important;
+        padding: 14px !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important;
+    }
+    [data-testid="stMetricLabel"] {
+        color: #9ca3af !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+    }
+    [data-testid="stMetricValue"] {
+        color: #60a5fa !important;
+        font-weight: 800 !important;
     }
 
-    /* 3. 마우스 호버 효과 */
-    button[data-baseweb="tab"]:hover {
-        color: #2563eb !important;
+    /* 입력창 및 셀렉트박스 다크 스타일 */
+    .stNumberInput input, .stSelectbox div[data-baseweb="select"] {
+        background-color: #1f2937 !important;
+        color: #ffffff !important;
+        border-color: #4b5563 !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.title("🛠️ 선재/이형재 인발 소성가공 종합 산출 도구")
-st.markdown("단면 감면율 및 3D 시각화, 인발력(95% 설비검증), 중량 계산, 직진도 환산 연산을 각각 **독립적**으로 처리하는 종합 계산기입니다.")
+st.markdown("단면 감면율 및 3D 시각화, 인발력(형상별 & 95% 설비검증), 중량 계산, 직진도 환산 연산 통합 도구입니다.")
 
 # --- 탭 구성 (4개 독립 모듈) ---
 tab1, tab2, tab3, tab4 = st.tabs([
     "1. 형상별 감면율 & 3D", 
-    "2. 인발력 산출 (TS 및 95% 설비검증)", 
+    "2. 인발력 산출 (형상별/TS/설비검증)", 
     "3. 중량 계산 (Round Bar)",
     "4. 직진도 환산"
 ])
@@ -85,7 +117,7 @@ def generate_shape_points(shape, w, h, r, n_points=120):
         return pts[:, 0], pts[:, 1]
 
 # ==========================================
-# [TAB 1] 형상별 감면율 및 3D 시각화 (독립 연산)
+# [TAB 1] 형상별 감면율 및 3D 시각화
 # ==========================================
 with tab1:
     st.subheader("1. 형상별 감면율 산출 및 2D/3D 시각화")
@@ -137,9 +169,9 @@ with tab1:
     x_out, y_out = generate_shape_points(shape_type, W, H, R, n_points=n_pts)
 
     fig_2d = go.Figure()
-    fig_2d.add_trace(go.Scatter(x=x_in, y=y_in, mode='lines', name=f'입력 원형 (Ø{d_in:.1f}mm)', line=dict(color='gray', dash='dash', width=2)))
-    fig_2d.add_trace(go.Scatter(x=x_out, y=y_out, mode='lines', name=f'출력 {shape_type}', fill="toself", fillcolor='rgba(37, 99, 235, 0.25)', line=dict(color='#1d4ed8', width=3)))
-    fig_2d.update_layout(title="<b>2D 단면 비교 (Cross-Section Overlay)</b>", xaxis=dict(scaleanchor="y", scaleratio=1), height=420)
+    fig_2d.add_trace(go.Scatter(x=x_in, y=y_in, mode='lines', name=f'입력 원형 (Ø{d_in:.1f}mm)', line=dict(color='#9ca3af', dash='dash', width=2)))
+    fig_2d.add_trace(go.Scatter(x=x_out, y=y_out, mode='lines', name=f'출력 {shape_type}', fill="toself", fillcolor='rgba(59, 130, 246, 0.3)', line=dict(color='#3b82f6', width=3)))
+    fig_2d.update_layout(title="<b>2D 단면 비교 (Cross-Section Overlay)</b>", xaxis=dict(scaleanchor="y", scaleratio=1), height=420, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(31, 41, 55, 0.8)', font=dict(color='#f3f4f6'))
     col_l.plotly_chart(fig_2d, use_container_width=True)
 
     z_levels = np.linspace(0, 100, 30)
@@ -159,15 +191,15 @@ with tab1:
             I.extend([p1, p2]); J.extend([p2, p4]); K.extend([p3, p3])
 
     fig_3d = go.Figure(data=[go.Mesh3d(x=X_3d, y=Y_3d, z=Z_3d, i=I, j=J, k=K, intensity=Z_3d, colorscale='Blues', opacity=0.9)])
-    fig_3d.update_layout(title="<b>3D 솔리드 인발 파이프라인</b>", scene=dict(aspectmode='data'), height=420)
+    fig_3d.update_layout(title="<b>3D 솔리드 인발 파이프라인</b>", scene=dict(aspectmode='data'), height=420, paper_bgcolor='rgba(0,0,0,0)', font=dict(color='#f3f4f6'))
     col_r.plotly_chart(fig_3d, use_container_width=True)
 
 # ==========================================
-# [TAB 2] 인발력 산출 (독립 KEY-IN & 엑셀 공식 적용)
+# [TAB 2] 인발력 산출 (PDF 분류 기준 DB 적용)
 # ==========================================
 with tab2:
-    st.subheader("2. 강종별 인발력 및 설비 부하(95% 한계) 검증")
-    st.markdown("투입선경(W/ROD)과 제품선경, 강종별 T.S를 직접 입력하여 **현장 엑셀 인발력 공식**으로 산출하고 설비 적합성을 검증합니다.")
+    st.subheader("2. 형상별 인발력 및 설비 부하(95% 한계) 검증")
+    st.markdown("PDF 분류에 따른 강종 선택 및 치수 입력으로 **현장 엑셀 인발력 공식**을 산출하고 설비 적합성을 검증합니다.")
 
     # 설비 DB (95% 한계 기준)
     machines_db = [
@@ -180,116 +212,154 @@ with tab2:
         {"name": "CD-4호기",   "min_d": 19.0, "max_d": 41.0, "max_cap": 25.0},
     ]
 
-    # 강종 DB (T.S: kgf/mm²)
-    steel_ts_db = {
-        # 이미지 표 데이터
-        "SUM22 (W/R)": 40.0,
-        "SUM24L (W/R)": 42.0,
-        "SUM43 (W/R)": 69.0,
-        "10A / SWRCH10A (W/R)": 36.0,
-        "12A / SWRCH12A (W/R)": 39.0,
-        "45K / SWRCH45K (W/R)": 65.0,
-        "S45C (W/R)": 71.0,
-        "SCM415 (W/R)": 60.0,
-        "SCM420 (W/R)": 79.0,
-        "SCM435 (W/R)": 96.0,
-        "SCM440 (W/R)": 104.0,
-        "SNCM220H (W/R)": 73.0,
-        "SNCM220H (SL04)": 58.0,
-        "SUP9 (W/R)": 95.0,
-        "100CRMNS (SA열처리)": 80.0,
-        "440C (W/R)": 77.0,
-        "440C (W/R 열처리)": 80.0,
-        "SUS316L (W/R)": 54.0,
-        "SUS304 (W/R)": 58.0,
-        "SNCM439 (W/R)": 110.0,
-        "SNCM439 (SA열처리)": 71.0,
-        "XM7 (원재)": 75.0,
-        "XM7 (12% 인발시)": 94.0,
-
-        # PDF 세아특수강 조직분석 자료 DB
-        "SUYB1 (전자연철봉)": 33.5,
-        "SWRCH6A (냉간압조용)": 33.1,
-        "SWRCH8A (냉간압조용)": 34.2,
-        "SWRCH15K (냉간압조용)": 41.4,
-        "SWRCH18A (냉간압조용)": 46.4,
-        "SWRCH20K (냉간압조용)": 44.4,
-        "SWRCH22A (냉간압조용)": 47.1,
-        "SWRCH25K(F) (냉간압조용)": 49.5,
-        "SWRCH30K (냉간압조용)": 58.3,
-        "SWRCH35K(F) (냉간압조용)": 60.5,
-        "SWRCH38K(F) (냉간압조용)": 60.9,
-        "SWRCH45K(F) (냉간압조용)": 64.7,
-        "S20C (기계구조용)": 48.5,
-        "S25C (기계구조용)": 51.6,
-        "S35C (기계구조용)": 69.9,
-        "S48C (기계구조용)": 78.2,
-        "SCr415H (경화능보증)": 52.2,
-        "SCr420H (경화능보증)": 58.2,
-        "SNB16 (고온합금강볼트)": 118.2,
-        "SUJ2 (베어링강)": 115.0,
-        "SUS303C (스텐)": 52.8,
-        "SUS303F (스텐)": 59.9,
-        "SUS410 (스텐)": 57.9,
-        "SUS416 (스텐)": 56.8,
-        "SUS420J2 (스텐)": 68.5,
-        "SUS430F (스텐)": 56.6,
-        "AISI/SAE 1050SH": 82.5,
-        "AISI/SAE 1060S": 87.1,
-        "AISI/SAE 1151": 72.3,
-        "AISI/SAE 1541": 81.0,
-        "AISI/SAE 4140": 114.0,
-        "AISI/SAE 4037": 65.1,
-        "AISI/SAE 9254": 96.7,
-        "AISI/SAE 10B21": 51.1,
-        "AISI/SAE 10B30": 57.6,
-        "AISI/SAE 10B35": 60.8,
-        "AISI/SAE 10B38": 64.1,
-        "AISI/SAE 15B36": 79.2,
-        "AISI/SAE 51B20": 51.9,
-        "AISI/SAE 51B35": 67.9,
-        "POSMA45R (POSCO)": 82.6,
-        "POSMA45RM (POSCO)": 76.0,
-        "POSA1038B (POSCO)": 64.2,
-        "POSA1021B (POSCO)": 52.6,
-        "POSA5120BH (POSCO)": 53.7,
-        "사용자 직접 입력": 70.0
+    # PDF W/R 분류 체계 기준 강종 DB (T.S: kgf/mm²)
+    steel_categories = {
+        "1. 전자연철봉": {
+            "SUYB1": 33.5
+        },
+        "2. 냉간압조용 탄소강 (SWRCH / Boron)": {
+            "SWRCH6A": 33.1,
+            "SWRCH8A": 34.2,
+            "SWRCH10A (10A)": 35.5,
+            "SWRCH12A (12A)": 38.8,
+            "SWRCH15K": 41.4,
+            "SWRCH18A": 46.4,
+            "SWRCH20K": 44.4,
+            "SWRCH22A": 47.1,
+            "SWRCH25K(F)": 49.5,
+            "SWRCH30K": 58.3,
+            "SWRCH35K(F)": 60.5,
+            "SWRCH38K(F)": 60.9,
+            "SWRCH45K(F) (45K)": 64.7,
+            "AISI/SAE 10B21": 51.1,
+            "AISI/SAE 10B30": 57.6,
+            "AISI/SAE 10B35": 60.8,
+            "AISI/SAE 10B38": 64.1
+        },
+        "3. 기계구조용강 (S-C계열)": {
+            "S20C": 48.5,
+            "S25C": 51.6,
+            "S35C": 69.9,
+            "S45C (W/R)": 71.0,
+            "S48C": 78.2
+        },
+        "4. 경화능 보증 구조용강 (H계열)": {
+            "SCr415H": 52.2,
+            "SCr420H": 58.2,
+            "SCM415 (W/R)": 60.0,
+            "SCM420 (W/R)": 79.0,
+            "SCM435 (W/R)": 96.0,
+            "SCM440 (W/R)": 104.0,
+            "W/R-SNCM220H": 73.0,
+            "LA-SNCM220H (SL04)": 58.0
+        },
+        "5. 베어링 / 스프링 / 고온합금강": {
+            "SUJ2 (베어링강)": 115.0,
+            "SUP9 (스프링강)": 95.0,
+            "SNB16 (고온합금강볼트)": 118.2,
+            "SA-100CRMNS7-4": 80.0
+        },
+        "6. 쾌삭강 (SUM)": {
+            "SUM22 (W/R)": 40.0,
+            "SUM24L (W/R)": 42.0,
+            "SUM43 (W/R)": 69.0,
+            "AISI/SAE 1151": 72.3
+        },
+        "7. 스테인리스강 (STS / SUS)": {
+            "SUS303C": 52.8,
+            "SUS303F": 59.9,
+            "SUS304 (W/R)": 58.0,
+            "SUS316L (W/R)": 54.0,
+            "SUS410": 57.9,
+            "SUS416": 56.8,
+            "SUS420J2": 68.5,
+            "SUS430F": 56.6,
+            "W/R-SUS440C": 77.0,
+            "XM7 (원재)": 75.0,
+            "XM7 (12% 인발시)": 94.0
+        },
+        "8. 기타 열처리 & 합금/포스코강": {
+            "W/R-SNCM439": 110.0,
+            "SA-SNCM439": 71.0,
+            "AISI/SAE 1050SH": 82.5,
+            "AISI/SAE 1060S": 87.1,
+            "AISI/SAE 1541": 81.0,
+            "AISI/SAE 4140": 114.0,
+            "AISI/SAE 4037": 65.1,
+            "AISI/SAE 9254": 96.7,
+            "POSMA45R": 82.6,
+            "POSMA45RM": 76.0,
+            "POSA1038B": 64.2,
+            "POSA1021B": 52.6,
+            "POSA5120BH": 53.7
+        },
+        "9. 사용자 직접 입력": {
+            "직접 입력": 40.0
+        }
     }
 
     col_f1, col_f2 = st.columns(2)
     
     with col_f1:
-        st.markdown("#### 📥 치수 및 강종 KEY-IN 입력")
-        d_in_t2 = st.number_input("투입 선경 W/ROD (MM)", value=19.0, min_value=1.0, step=0.1, key="t2_din_keyin")
-        d_out_t2 = st.number_input("제품 선경 (MM)", value=16.23, min_value=0.5, step=0.01, key="t2_dout_keyin")
+        st.markdown("#### 📥 변형 유형 및 KEY-IN 치수 입력")
+        draw_mode = st.selectbox("인발 변형 유형 선택", ["1. 원형 - 원형", "2. 원형 - 사각", "3. 원형 - 육각"], key="t2_mode")
         
-        steel_choice = st.selectbox("강종 선택 (T.S 적용)", list(steel_ts_db.keys()), key="t2_steel")
-        
-        if steel_choice == "사용자 직접 입력":
-            ts_kgf = st.number_input("T.S (W/ROD) (kgf/mm²)", value=70.0, step=1.0, key="t2_custom_ts")
+        d_in_t2 = st.number_input("투입 원형 선경 W/ROD (MM)", value=32.0, min_value=1.0, step=0.5, key="t2_din_keyin")
+
+        # 모드별 출력 치수 입력 및 면적/대각 연산
+        if draw_mode == "1. 원형 - 원형":
+            d_out_t2 = st.number_input("제품 원형 선경 (MM)", value=26.0, min_value=0.5, step=0.1, key="t2_dout_rd")
+            a2_t2 = (np.pi / 4.0) * (d_out_t2 ** 2)
+            diag_t2 = d_out_t2
+            prod_size_for_m = d_out_t2
+
+        elif draw_mode == "2. 원형 - 사각":
+            w_out_t2 = st.number_input("제품 사각 한변 치수 (MM)", value=18.0, min_value=0.5, step=0.1, key="t2_wout_sq")
+            a2_t2 = w_out_t2 ** 2
+            diag_t2 = w_out_t2 * np.sqrt(2.0)
+            prod_size_for_m = w_out_t2
+
+        else: # 원형 - 육각
+            w_out_t2 = st.number_input("제품 육각 대면 치수 W (MM)", value=26.0, min_value=0.5, step=0.1, key="t2_wout_hex")
+            a2_t2 = (np.sqrt(3.0) / 2.0) * (w_out_t2 ** 2)
+            diag_t2 = (2.0 * w_out_t2) / np.sqrt(3.0)
+            prod_size_for_m = w_out_t2
+
+        st.markdown("---")
+        st.markdown("#### 🧬 강종 선택 (2단계 분류 체계)")
+        cat_choice = st.selectbox("1단계: 강종 분류 선택", list(steel_categories.keys()), key="t2_cat")
+        sub_steels = steel_categories[cat_choice]
+        steel_choice = st.selectbox("2단계: 세부 강종 선택", list(sub_steels.keys()), key="t2_steel")
+
+        if cat_choice == "9. 사용자 직접 입력" or steel_choice == "직접 입력":
+            ts_kgf = st.number_input("T.S (W/ROD) (kgf/mm²)", value=40.0, step=1.0, key="t2_custom_ts")
         else:
-            ts_kgf = steel_ts_db[steel_choice]
+            ts_kgf = sub_steels[steel_choice]
 
     # 면적 및 감면율 연산
     a1_t2 = (np.pi / 4.0) * (d_in_t2 ** 2)
-    a2_t2 = (np.pi / 4.0) * (d_out_t2 ** 2)
     ra_ratio = (a1_t2 - a2_t2) / a1_t2 if a1_t2 > 0 else 0.0
     ra_percent = ra_ratio * 100.0
 
     with col_f2:
-        st.markdown("#### 📐 자동 연산 결과")
-        st.write(f"• **투입 면적 (C3):** `{a1_t2:.2f} mm²`")
-        st.write(f"• **제품 면적 (D3):** `{a2_t2:.3f} mm²`")
-        st.write(f"• **감면율 (E2):** `{ra_ratio:.6f}` (`{ra_percent:.2f}%`)")
-        st.write(f"• **T.S (W/ROD) (C4):** `{ts_kgf:.1f} kgf/mm²`")
+        st.markdown("#### 📐 자동 계산된 단면 및 감면율")
+        st.write(f"• **투입 면적 (A₁):** `{a1_t2:.2f} mm²`")
+        st.write(f"• **제품 면적 (A₂):** `{a2_t2:.3f} mm²`")
+        st.write(f"• **감면율 (RA):** `{ra_ratio:.6f}` (`{ra_percent:.2f}%`)")
+        st.write(f"• **제품 대각 치수 (D):** `{diag_t2:.3f} mm`")
+        st.write(f"• **적용 강종 분류:** `{cat_choice}` ➔ `{steel_choice}`")
+        st.write(f"• **적용 T.S (W/ROD):** `{ts_kgf:.1f} kgf/mm²`")
 
-    # 엑셀 공식: = 1.25 / 0.35 * D3 * C4 * (0.03 + 0.55 * E2) / 1000
-    if d_in_t2 > d_out_t2 and d_out_t2 > 0:
+    # 엑셀 인발력 공식: = 1.25 / 0.35 * A2 * TS * (0.03 + 0.55 * RA) / 1000
+    if a1_t2 > a2_t2 and a2_t2 > 0:
         force_ton = (1.25 / 0.35) * a2_t2 * ts_kgf * (0.03 + 0.55 * ra_ratio) / 1000.0
 
         st.markdown("---")
-        st.metric("산출 인발력 (TON)", f"{force_ton:.4f} Ton", f"{force_ton * 9.80665:.2f} kN")
-        st.info("💡 **적용 엑셀 공식:** 인발력 (TON) = 1.25 / 0.35 × 제품면적(D3) × T.S(C4) × (0.03 + 0.55 × 감면율(E2)) / 1000")
+        m_c1, m_c2 = st.columns(2)
+        m_c1.metric("산출 인발력 (TON)", f"{force_ton:.3f} Ton", f"{force_ton * 9.80665:.2f} kN")
+        m_c2.metric("제품 대각 치수", f"{diag_t2:.2f} mm", f"변형 유형: {draw_mode}")
+
+        st.info("💡 **적용 엑셀 공식:** 인발력 (TON) = 1.25 / 0.35 × 제품면적(A₂) × T.S × (0.03 + 0.55 × 감면율비율) / 1000")
 
         st.markdown("---")
         st.markdown("### 🏭 설비별 작업 가능 여부 검증 (설비 능력 95% 제한 기준)")
@@ -298,7 +368,7 @@ with tab2:
         matched_machines = []
 
         for m in machines_db:
-            size_ok = (m["min_d"] <= d_out_t2 <= m["max_d"])
+            size_ok = (m["min_d"] <= prod_size_for_m <= m["max_d"])
             usable_cap = m["max_cap"] * 0.95
             force_ok = (force_ton <= usable_cap)
             load_ratio = (force_ton / usable_cap) * 100.0 if usable_cap > 0 else 0.0
@@ -316,24 +386,24 @@ with tab2:
                 "작업 가능 제품선경": f"{m['min_d']} ~ {m['max_d']} mm",
                 "설비 Max 톤수": f"{m['max_cap']:.1f} t",
                 "95% 한계 인발력": f"{usable_cap:.2f} t",
-                "소요 인발력": f"{force_ton:.4f} t",
+                "소요 인발력": f"{force_ton:.3f} t",
                 "설비 부하율": f"{load_ratio:.1f} %",
                 "판정 결과": status
             })
 
         if matched_machines:
-            st.success(f"✅ **현재 작업 조건(Ø{d_out_t2:.2f}mm / {force_ton:.4f}t)에 이상이 없는 추천 설비:** " + ", ".join(matched_machines))
+            st.success(f"✅ **현재 작업 조건({draw_mode} / {force_ton:.3f}t)에 이상이 없는 추천 설비:** " + ", ".join(matched_machines))
         else:
-            st.error(f"⚠️ **경고:** 현재 소요 인발력({force_ton:.4f}t) 및 제품선경(Ø{d_out_t2:.2f}mm) 조건에 안전하게(95% 이내) 작업할 수 있는 설비가 없습니다.")
+            st.error(f"⚠️ **경고:** 현재 소요 인발력({force_ton:.3f}t) 조건에 안전하게(95% 이내) 작업할 수 있는 설비가 없습니다.")
 
         df_m = pd.DataFrame(m_eval_data)
         st.dataframe(df_m, use_container_width=True)
 
     else:
-        st.warning("투입 선경이 제품 선경보다 커야 인발력 연산이 가능합니다.")
+        st.warning("투입 선경이 제품 단면보다 커야 인발력 연산이 가능합니다.")
 
 # ==========================================
-# [TAB 3] 중량 계산 (독립 KEY-IN & Round Bar 엑셀식)
+# [TAB 3] 중량 계산 (독립형 Round Bar 엑셀식)
 # ==========================================
 with tab3:
     st.subheader("3. 선재 / 봉재 규격별 중량 계산 (Round Bar)")
@@ -362,7 +432,6 @@ with tab3:
     with col_w2:
         quantity = st.number_input("총 수량 (EA)", value=1, step=1, key="w_qty")
         
-        # 엑셀 공식: W = π/4 * L * D² * Sg (단위 변환 포함 10^-6)
         calc_area = (np.pi / 4.0) * (d_calc ** 2)
         piece_weight_kg = calc_area * length_mm * rho * (10 ** -6)
         piece_weight_lb = piece_weight_kg * 2.20462
@@ -381,7 +450,7 @@ with tab3:
     st.info("💡 **적용 공식:** W (Weight) = π / 4 * L * D² * Sg (단위 변환 10⁻⁶ 적용)")
 
 # ==========================================
-# [TAB 4] 직진도 환산 (독립 KEY-IN & 엑셀 수식 적용)
+# [TAB 4] 직진도 환산 (엑셀 수식 적용)
 # ==========================================
 with tab4:
     st.subheader("4. 환산 직진도 계산기")
@@ -400,7 +469,6 @@ with tab4:
         st.markdown("#### 🏭 제품 기준 (Input)")
         prod_length = st.number_input("제품길이 (mm)", value=1000.0, step=10.0, key="s_prod_l")
 
-    # 엑셀 환산 수식: ((Q) * (R^2)) / (P^2)
     if req_length > 0:
         conv_straightness = (req_straightness * (prod_length ** 2)) / (req_length ** 2)
     else:
