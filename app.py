@@ -6,62 +6,62 @@ import plotly.graph_objects as go
 # --- 페이지 기본 설정 ---
 st.set_page_config(page_title="선재/이형재 인발 소성가공 종합 산출 도구", layout="wide")
 
-# --- 차분하고 가독성 높은 다크 인더스트리얼 테마 (CSS) ---
+# --- 눈이 편안한 모던 소프트 슬레이트 테마 (CSS) ---
 st.markdown("""
     <style>
-    /* 전체 배경 차분한 어두운 톤 설정 */
+    /* 1. 전체 배경: 눈이 편안한 은은한 연회색 */
     .stApp {
-        background-color: #111827 !important;
-        color: #f3f4f6 !important;
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
     }
     
-    /* 헤더 및 일반 텍스트 색상 */
+    /* 2. 헤더 및 일반 텍스트 색상 (선명한 다크 슬레이트) */
     h1, h2, h3, h4, h5, h6, p, label, .stMarkdown {
-        color: #f9fafb !important;
+        color: #0f172a !important;
     }
     
-    /* 탭(Tab) 스타일 대폭 강화 (가시성 극대화) */
+    /* 3. 탭(Tab) 블록 카드 스타일 (크기 19px, Bold) */
     button[data-baseweb="tab"] {
         font-size: 19px !important;
         font-weight: 800 !important;
-        color: #9ca3af !important;
-        background-color: #1f2937 !important;
+        color: #475569 !important;
+        background-color: #e2e8f0 !important;
         border-radius: 8px 8px 0px 0px !important;
         margin-right: 6px !important;
         padding: 12px 24px !important;
-        border: 1px solid #374151 !important;
+        border: 1px solid #cbd5e1 !important;
     }
     
-    /* 선택된 탭 강조 */
+    /* 4. 선택된 탭: 선명한 딥 블루 하이라이트 */
     button[data-baseweb="tab"][aria-selected="true"] {
         color: #ffffff !important;
-        background-color: #2563eb !important;
-        border-bottom: 4px solid #60a5fa !important;
+        background-color: #1e40af !important;
+        border-bottom: 4px solid #1d4ed8 !important;
     }
     
-    /* 지표 카드(Metric) 다크 모드 스타일 */
+    /* 5. 지표 카드(Metric) 소프트 모드 스타일 */
     [data-testid="stMetric"] {
-        background-color: #1f2937 !important;
-        border: 1px solid #374151 !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
         border-radius: 10px !important;
         padding: 14px !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
     }
     [data-testid="stMetricLabel"] {
-        color: #9ca3af !important;
+        color: #475569 !important;
         font-size: 15px !important;
         font-weight: 700 !important;
     }
     [data-testid="stMetricValue"] {
-        color: #60a5fa !important;
+        color: #1e40af !important;
         font-weight: 800 !important;
     }
 
-    /* 입력창 및 셀렉트박스 다크 스타일 */
+    /* 6. 입력창 및 셀렉트박스 깔끔한 화이트 스타일 */
     .stNumberInput input, .stSelectbox div[data-baseweb="select"] {
-        background-color: #1f2937 !important;
-        color: #ffffff !important;
-        border-color: #4b5563 !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border-color: #94a3b8 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -169,9 +169,9 @@ with tab1:
     x_out, y_out = generate_shape_points(shape_type, W, H, R, n_points=n_pts)
 
     fig_2d = go.Figure()
-    fig_2d.add_trace(go.Scatter(x=x_in, y=y_in, mode='lines', name=f'입력 원형 (Ø{d_in:.1f}mm)', line=dict(color='#9ca3af', dash='dash', width=2)))
-    fig_2d.add_trace(go.Scatter(x=x_out, y=y_out, mode='lines', name=f'출력 {shape_type}', fill="toself", fillcolor='rgba(59, 130, 246, 0.3)', line=dict(color='#3b82f6', width=3)))
-    fig_2d.update_layout(title="<b>2D 단면 비교 (Cross-Section Overlay)</b>", xaxis=dict(scaleanchor="y", scaleratio=1), height=420, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(31, 41, 55, 0.8)', font=dict(color='#f3f4f6'))
+    fig_2d.add_trace(go.Scatter(x=x_in, y=y_in, mode='lines', name=f'입력 원형 (Ø{d_in:.1f}mm)', line=dict(color='#64748b', dash='dash', width=2)))
+    fig_2d.add_trace(go.Scatter(x=x_out, y=y_out, mode='lines', name=f'출력 {shape_type}', fill="toself", fillcolor='rgba(37, 99, 235, 0.2)', line=dict(color='#1d4ed8', width=3)))
+    fig_2d.update_layout(title="<b>2D 단면 비교 (Cross-Section Overlay)</b>", xaxis=dict(scaleanchor="y", scaleratio=1), height=420, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#ffffff', font=dict(color='#0f172a'))
     col_l.plotly_chart(fig_2d, use_container_width=True)
 
     z_levels = np.linspace(0, 100, 30)
@@ -191,7 +191,7 @@ with tab1:
             I.extend([p1, p2]); J.extend([p2, p4]); K.extend([p3, p3])
 
     fig_3d = go.Figure(data=[go.Mesh3d(x=X_3d, y=Y_3d, z=Z_3d, i=I, j=J, k=K, intensity=Z_3d, colorscale='Blues', opacity=0.9)])
-    fig_3d.update_layout(title="<b>3D 솔리드 인발 파이프라인</b>", scene=dict(aspectmode='data'), height=420, paper_bgcolor='rgba(0,0,0,0)', font=dict(color='#f3f4f6'))
+    fig_3d.update_layout(title="<b>3D 솔리드 인발 파이프라인</b>", scene=dict(aspectmode='data'), height=420, paper_bgcolor='rgba(0,0,0,0)', font=dict(color='#0f172a'))
     col_r.plotly_chart(fig_3d, use_container_width=True)
 
 # ==========================================
@@ -306,7 +306,6 @@ with tab2:
         
         d_in_t2 = st.number_input("투입 원형 선경 W/ROD (MM)", value=32.0, min_value=1.0, step=0.5, key="t2_din_keyin")
 
-        # 모드별 출력 치수 입력 및 면적/대각 연산
         if draw_mode == "1. 원형 - 원형":
             d_out_t2 = st.number_input("제품 원형 선경 (MM)", value=26.0, min_value=0.5, step=0.1, key="t2_dout_rd")
             a2_t2 = (np.pi / 4.0) * (d_out_t2 ** 2)
@@ -477,22 +476,3 @@ with tab4:
     with col_s3:
         st.markdown("#### ✅ 계산 결과 (Output)")
         st.metric("환산 직진도", f"{conv_straightness:.3f} mm")
-
-    st.markdown("---")
-    st.markdown("### 📊 직진도 환산 테이블 (현재 입력값 비교)")
-    
-    test_data = pd.DataFrame({
-        "수요가길이": [4920, 400, 1000, 300, req_length],
-        "직진도": [1.000, 0.060, 0.500, 0.036, req_straightness],
-        "제품길이": [1000, 1000, 400, 1000, prod_length],
-    })
-    
-    test_data["환산 직진도"] = (test_data["직진도"] * (test_data["제품길이"] ** 2)) / (test_data["수요가길이"] ** 2)
-    test_data["비고"] = ["엑셀 예시 1", "엑셀 예시 2", "엑셀 예시 3", "엑셀 예시 4", "👉 현재 계산 중인 값"]
-    
-    st.dataframe(test_data.style.format({
-        "수요가길이": "{:,.0f}",
-        "직진도": "{:.3f}",
-        "제품길이": "{:,.0f}",
-        "환산 직진도": "{:.3f}"
-    }), use_container_width=True)
