@@ -207,52 +207,52 @@ with tab2:
         "XM7 (원재)": 75.0,
         "XM7 (12% 인발시)": 94.0,
 
-        # PDF 세아특수강 조직분석 자료 DB[cite: 1]
-        "SUYB1 (전자연철봉)": 33.5,[cite: 1]
-        "SWRCH6A (냉간압조용)": 33.1,[cite: 1]
-        "SWRCH8A (냉간압조용)": 34.2,[cite: 1]
-        "SWRCH15K (냉간압조용)": 41.4,[cite: 1]
-        "SWRCH18A (냉간압조용)": 46.4,[cite: 1]
-        "SWRCH20K (냉간압조용)": 44.4,[cite: 1]
-        "SWRCH22A (냉간압조용)": 47.1,[cite: 1]
-        "SWRCH25K(F) (냉간압조용)": 49.5,[cite: 1]
-        "SWRCH30K (냉간압조용)": 58.3,[cite: 1]
-        "SWRCH35K(F) (냉간압조용)": 60.5,[cite: 1]
-        "SWRCH38K(F) (냉간압조용)": 60.9,[cite: 1]
-        "SWRCH45K(F) (냉간압조용)": 64.7,[cite: 1]
-        "S20C (기계구조용)": 48.5,[cite: 1]
-        "S25C (기계구조용)": 51.6,[cite: 1]
-        "S35C (기계구조용)": 69.9,[cite: 1]
-        "S48C (기계구조용)": 78.2,[cite: 1]
-        "SCr415H (경화능보증)": 52.2,[cite: 1]
-        "SCr420H (경화능보증)": 58.2,[cite: 1]
-        "SNB16 (고온합금강볼트)": 118.2,[cite: 1]
-        "SUJ2 (베어링강)": 115.0,[cite: 1]
-        "SUS303C (스텐)": 52.8,[cite: 1]
-        "SUS303F (스텐)": 59.9,[cite: 1]
-        "SUS410 (스텐)": 57.9,[cite: 1]
-        "SUS416 (스텐)": 56.8,[cite: 1]
-        "SUS420J2 (스텐)": 68.5,[cite: 1]
-        "SUS430F (스텐)": 56.6,[cite: 1]
-        "AISI/SAE 1050SH": 82.5,[cite: 1]
-        "AISI/SAE 1060S": 87.1,[cite: 1]
-        "AISI/SAE 1151": 72.3,[cite: 1]
-        "AISI/SAE 1541": 81.0,[cite: 1]
-        "AISI/SAE 4140": 114.0,[cite: 1]
-        "AISI/SAE 4037": 65.1,[cite: 1]
-        "AISI/SAE 9254": 96.7,[cite: 1]
-        "AISI/SAE 10B21": 51.1,[cite: 1]
-        "AISI/SAE 10B30": 57.6,[cite: 1]
-        "AISI/SAE 10B35": 60.8,[cite: 1]
-        "AISI/SAE 10B38": 64.1,[cite: 1]
-        "AISI/SAE 15B36": 79.2,[cite: 1]
-        "AISI/SAE 51B20": 51.9,[cite: 1]
-        "AISI/SAE 51B35": 67.9,[cite: 1]
-        "POSMA45R (POSCO)": 82.6,[cite: 1]
-        "POSMA45RM (POSCO)": 76.0,[cite: 1]
-        "POSA1038B (POSCO)": 64.2,[cite: 1]
-        "POSA1021B (POSCO)": 52.6,[cite: 1]
-        "POSA5120BH (POSCO)": 53.7,[cite: 1]
+        # PDF 세아특수강 조직분석 자료 DB
+        "SUYB1 (전자연철봉)": 33.5,
+        "SWRCH6A (냉간압조용)": 33.1,
+        "SWRCH8A (냉간압조용)": 34.2,
+        "SWRCH15K (냉간압조용)": 41.4,
+        "SWRCH18A (냉간압조용)": 46.4,
+        "SWRCH20K (냉간압조용)": 44.4,
+        "SWRCH22A (냉간압조용)": 47.1,
+        "SWRCH25K(F) (냉간압조용)": 49.5,
+        "SWRCH30K (냉간압조용)": 58.3,
+        "SWRCH35K(F) (냉간압조용)": 60.5,
+        "SWRCH38K(F) (냉간압조용)": 60.9,
+        "SWRCH45K(F) (냉간압조용)": 64.7,
+        "S20C (기계구조용)": 48.5,
+        "S25C (기계구조용)": 51.6,
+        "S35C (기계구조용)": 69.9,
+        "S48C (기계구조용)": 78.2,
+        "SCr415H (경화능보증)": 52.2,
+        "SCr420H (경화능보증)": 58.2,
+        "SNB16 (고온합금강볼트)": 118.2,
+        "SUJ2 (베어링강)": 115.0,
+        "SUS303C (스텐)": 52.8,
+        "SUS303F (스텐)": 59.9,
+        "SUS410 (스텐)": 57.9,
+        "SUS416 (스텐)": 56.8,
+        "SUS420J2 (스텐)": 68.5,
+        "SUS430F (스텐)": 56.6,
+        "AISI/SAE 1050SH": 82.5,
+        "AISI/SAE 1060S": 87.1,
+        "AISI/SAE 1151": 72.3,
+        "AISI/SAE 1541": 81.0,
+        "AISI/SAE 4140": 114.0,
+        "AISI/SAE 4037": 65.1,
+        "AISI/SAE 9254": 96.7,
+        "AISI/SAE 10B21": 51.1,
+        "AISI/SAE 10B30": 57.6,
+        "AISI/SAE 10B35": 60.8,
+        "AISI/SAE 10B38": 64.1,
+        "AISI/SAE 15B36": 79.2,
+        "AISI/SAE 51B20": 51.9,
+        "AISI/SAE 51B35": 67.9,
+        "POSMA45R (POSCO)": 82.6,
+        "POSMA45RM (POSCO)": 76.0,
+        "POSA1038B (POSCO)": 64.2,
+        "POSA1021B (POSCO)": 52.6,
+        "POSA5120BH (POSCO)": 53.7,
         "사용자 직접 입력": 70.0
     }
 
