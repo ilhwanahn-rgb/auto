@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 # --- 페이지 기본 설정 ---
 st.set_page_config(page_title="선재/이형재 인발 소성가공 종합 산출 도구", layout="wide")
 
-# --- 탭(Tab) 시안성 및 입체감 극대화 CSS ---
+# --- 탭 및 KEY-IN 입력창 시안성 극대화 CSS ---
 st.markdown("""
     <style>
     /* 전체 배경: 눈이 편안한 모던 슬레이트 톤 */
@@ -15,7 +15,7 @@ st.markdown("""
         color: #0f172a !important;
     }
     
-    /* 탭(Tab) 전체 영역 컨테이너 여백 */
+    /* 1. 탭(Tab) 전체 영역 컨테이너 여백 */
     div[data-baseweb="tab-list"] {
         gap: 8px !important;
         background-color: transparent !important;
@@ -53,13 +53,46 @@ st.markdown("""
         transform: translateY(-2px) !important;
     }
     
-    /* 지표 카드(Metric) 입체 스타일 */
+    /* 2. 입력창 라벨(제목) 글자 강조 */
+    div[data-testid="stWidgetLabel"] label p {
+        font-weight: 800 !important;
+        color: #1e3a8a !important; /* 진한 남색 */
+        font-size: 16px !important;
+    }
+
+    /* 3. KEY-IN (숫자 입력창) 전용 하이라이트 - 엑셀 입력셀 스타일 (연노랑 배경 + 파란 테두리) */
+    .stNumberInput input {
+        background-color: #fefce8 !important; /* 파스텔 연노랑 */
+        color: #0f172a !important;
+        border: 2.5px solid #2563eb !important; /* 선명한 파란색 테두리 */
+        border-radius: 8px !important;
+        font-weight: 800 !important;
+        font-size: 17px !important;
+        padding: 8px 12px !important;
+    }
+    .stNumberInput input:focus {
+        background-color: #ffffff !important;
+        border-color: #1d4ed8 !important;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25) !important;
+    }
+
+    /* 4. 드롭다운 (Selectbox) KEY-IN 하이라이트 - (파스텔 스카이블루 배경 + 딥사이안 테두리) */
+    .stSelectbox div[data-baseweb="select"] {
+        background-color: #f0f9ff !important; /* 파스텔 스카이블루 */
+        color: #0f172a !important;
+        border: 2.5px solid #0284c7 !important;
+        border-radius: 8px !important;
+        font-weight: 800 !important;
+        font-size: 16px !important;
+    }
+
+    /* 5. 계산 결과 지표 카드(Metric) 입체 스타일 (화이트 배경으로 입력창과 확실히 구분) */
     [data-testid="stMetric"] {
         background-color: #ffffff !important;
-        border: 2px solid #e2e8f0 !important;
+        border: 2px solid #cbd5e1 !important;
         border-radius: 12px !important;
         padding: 16px !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06) !important;
     }
     [data-testid="stMetricLabel"] {
         color: #475569 !important;
@@ -69,15 +102,6 @@ st.markdown("""
     [data-testid="stMetricValue"] {
         color: #1e40af !important;
         font-weight: 800 !important;
-    }
-
-    /* 입력창 및 셀렉트박스 보더 강화 */
-    .stNumberInput input, .stSelectbox div[data-baseweb="select"] {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-        border: 2px solid #94a3b8 !important;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -137,31 +161,31 @@ def generate_shape_points(shape, w, h, r, n_points=120):
 # ==========================================
 with tab1:
     st.subheader("1. 형상별 감면율 산출 및 2D/3D 시각화")
-    st.markdown("입력 원형 선경과 목표 출력 형상 치수를 조절하여 **감면율, 대각 치수, 2D 단면 및 3D 솔리드 형상**을 산출합니다.")
+    st.markdown("✍️ **[노란색/파란색 박스]**에 입력 치수를 KEY-IN하여 연산 결과를 확인하세요.")
     
     col_in1, col_in2 = st.columns(2)
     with col_in1:
-        d_in = st.number_input("입력 원형 선경 d (mm)", value=30.0, min_value=1.0, step=0.5, key="t1_din")
-        shape_type = st.selectbox("목표 단면 형상", ["정육각형", "사각형 (정/직사각)", "이형 (트랙/장원형)"], key="t1_shape")
+        d_in = st.number_input("✍️ 입력 원형 선경 d (mm)", value=30.0, min_value=1.0, step=0.5, key="t1_din")
+        shape_type = st.selectbox("📌 목표 단면 형상 선택", ["정육각형", "사각형 (정/직사각)", "이형 (트랙/장원형)"], key="t1_shape")
 
     with col_in2:
         if shape_type == "정육각형":
-            W = st.number_input("대면 치수 W (mm)", value=28.0, step=0.5, key="t1_w")
-            R = st.slider("모서리 R (mm)", 0.0, float(W/2.0), 2.9, 0.1, key="t1_r")
+            W = st.number_input("✍️ 대면 치수 W (mm)", value=28.0, step=0.5, key="t1_w")
+            R = st.slider("🎚️ 모서리 R (mm)", 0.0, float(W/2.0), 2.9, 0.1, key="t1_r")
             H = W
             max_diag = (2 * W / np.sqrt(3)) - 2 * R * ((2 / np.sqrt(3)) - 1)
             A2 = (np.sqrt(3) / 2.0) * (W ** 2) - (2 * np.sqrt(3) - np.pi) * (R ** 2)
 
         elif shape_type == "사각형 (정/직사각)":
-            W = st.number_input("폭 W (mm)", value=25.0, step=0.5, key="t1_w_sq")
-            H = st.number_input("높이 H (mm)", value=25.0, step=0.5, key="t1_h_sq")
-            R = st.slider("모서리 R (mm)", 0.0, float(min(W, H)/2.0), 1.0, 0.1, key="t1_r_sq")
+            W = st.number_input("✍️ 폭 W (mm)", value=25.0, step=0.5, key="t1_w_sq")
+            H = st.number_input("✍️ 높이 H (mm)", value=25.0, step=0.5, key="t1_h_sq")
+            R = st.slider("🎚️ 모서리 R (mm)", 0.0, float(min(W, H)/2.0), 1.0, 0.1, key="t1_r_sq")
             max_diag = np.sqrt(W**2 + H**2) - 2 * R * (np.sqrt(2) - 1)
             A2 = W * H - (4.0 - np.pi) * (R ** 2)
 
         else: # 트랙형
-            W = st.number_input("전체 폭 W (mm)", value=30.0, step=0.5, key="t1_w_tr")
-            H = st.number_input("높이 H (mm)", value=18.0, step=0.5, key="t1_h_tr")
+            W = st.number_input("✍️ 전체 폭 W (mm)", value=30.0, step=0.5, key="t1_w_tr")
+            H = st.number_input("✍️ 높이 H (mm)", value=18.0, step=0.5, key="t1_h_tr")
             R = H / 2.0
             max_diag = W
             A2 = (W - H) * H + (np.pi / 4.0) * (H ** 2)
@@ -215,9 +239,8 @@ with tab1:
 # ==========================================
 with tab2:
     st.subheader("2. 형상별 인발력 및 설비 부하(95% 한계) 검증")
-    st.markdown("PDF 분류에 따른 강종 선택 및 치수 입력으로 **현장 엑셀 인발력 공식**을 산출하고 설비 적합성을 검증합니다.")
+    st.markdown("✍️ **[노란색/파란색 박스]**에 입력 치수 및 강종을 KEY-IN하여 **현장 엑셀 인발력**과 설비 가동 여부를 연산합니다.")
 
-    # 설비 DB (95% 한계 기준)
     machines_db = [
         {"name": "CD-0-2호기", "min_d": 3.8,  "max_d": 6.0,  "max_cap": 2.0},
         {"name": "CD-0-3호기", "min_d": 5.49, "max_d": 9.0,  "max_cap": 2.0},
@@ -228,7 +251,6 @@ with tab2:
         {"name": "CD-4호기",   "min_d": 19.0, "max_d": 41.0, "max_cap": 25.0},
     ]
 
-    # PDF W/R 분류 체계 기준 강종 DB (T.S: kgf/mm²)
     steel_categories = {
         "1. 전자연철봉": {
             "SUYB1": 33.5
@@ -318,40 +340,39 @@ with tab2:
     
     with col_f1:
         st.markdown("#### 📥 변형 유형 및 KEY-IN 치수 입력")
-        draw_mode = st.selectbox("인발 변형 유형 선택", ["1. 원형 - 원형", "2. 원형 - 사각", "3. 원형 - 육각"], key="t2_mode")
+        draw_mode = st.selectbox("📌 인발 변형 유형 선택", ["1. 원형 - 원형", "2. 원형 - 사각", "3. 원형 - 육각"], key="t2_mode")
         
-        d_in_t2 = st.number_input("투입 원형 선경 W/ROD (MM)", value=32.0, min_value=1.0, step=0.5, key="t2_din_keyin")
+        d_in_t2 = st.number_input("✍️ 투입 원형 선경 W/ROD (MM)", value=32.0, min_value=1.0, step=0.5, key="t2_din_keyin")
 
         if draw_mode == "1. 원형 - 원형":
-            d_out_t2 = st.number_input("제품 원형 선경 (MM)", value=26.0, min_value=0.5, step=0.1, key="t2_dout_rd")
+            d_out_t2 = st.number_input("✍️ 제품 원형 선경 (MM)", value=26.0, min_value=0.5, step=0.1, key="t2_dout_rd")
             a2_t2 = (np.pi / 4.0) * (d_out_t2 ** 2)
             diag_t2 = d_out_t2
             prod_size_for_m = d_out_t2
 
         elif draw_mode == "2. 원형 - 사각":
-            w_out_t2 = st.number_input("제품 사각 한변 치수 (MM)", value=18.0, min_value=0.5, step=0.1, key="t2_wout_sq")
+            w_out_t2 = st.number_input("✍️ 제품 사각 한변 치수 (MM)", value=18.0, min_value=0.5, step=0.1, key="t2_wout_sq")
             a2_t2 = w_out_t2 ** 2
             diag_t2 = w_out_t2 * np.sqrt(2.0)
             prod_size_for_m = w_out_t2
 
         else: # 원형 - 육각
-            w_out_t2 = st.number_input("제품 육각 대면 치수 W (MM)", value=26.0, min_value=0.5, step=0.1, key="t2_wout_hex")
+            w_out_t2 = st.number_input("✍️ 제품 육각 대면 치수 W (MM)", value=26.0, min_value=0.5, step=0.1, key="t2_wout_hex")
             a2_t2 = (np.sqrt(3.0) / 2.0) * (w_out_t2 ** 2)
             diag_t2 = (2.0 * w_out_t2) / np.sqrt(3.0)
             prod_size_for_m = w_out_t2
 
         st.markdown("---")
         st.markdown("#### 🧬 강종 선택 (2단계 분류 체계)")
-        cat_choice = st.selectbox("1단계: 강종 분류 선택", list(steel_categories.keys()), key="t2_cat")
+        cat_choice = st.selectbox("📌 1단계: 강종 분류 선택", list(steel_categories.keys()), key="t2_cat")
         sub_steels = steel_categories[cat_choice]
-        steel_choice = st.selectbox("2단계: 세부 강종 선택", list(sub_steels.keys()), key="t2_steel")
+        steel_choice = st.selectbox("📌 2단계: 세부 강종 선택", list(sub_steels.keys()), key="t2_steel")
 
         if cat_choice == "9. 사용자 직접 입력" or steel_choice == "직접 입력":
-            ts_kgf = st.number_input("T.S (W/ROD) (kgf/mm²)", value=40.0, step=1.0, key="t2_custom_ts")
+            ts_kgf = st.number_input("✍️ T.S (W/ROD) (kgf/mm²)", value=40.0, step=1.0, key="t2_custom_ts")
         else:
             ts_kgf = sub_steels[steel_choice]
 
-    # 면적 및 감면율 연산
     a1_t2 = (np.pi / 4.0) * (d_in_t2 ** 2)
     ra_ratio = (a1_t2 - a2_t2) / a1_t2 if a1_t2 > 0 else 0.0
     ra_percent = ra_ratio * 100.0
@@ -365,7 +386,6 @@ with tab2:
         st.write(f"• **적용 강종 분류:** `{cat_choice}` ➔ `{steel_choice}`")
         st.write(f"• **적용 T.S (W/ROD):** `{ts_kgf:.1f} kgf/mm²`")
 
-    # 엑셀 인발력 공식: = 1.25 / 0.35 * A2 * TS * (0.03 + 0.55 * RA) / 1000
     if a1_t2 > a2_t2 and a2_t2 > 0:
         force_ton = (1.25 / 0.35) * a2_t2 * ts_kgf * (0.03 + 0.55 * ra_ratio) / 1000.0
 
@@ -422,33 +442,33 @@ with tab2:
 # ==========================================
 with tab3:
     st.subheader("3. 선재 / 봉재 규격별 중량 계산 (원형/사각/육각)")
-    st.markdown("단면 형상(원형, 사각, 육각)을 선택하고 치수와 길이, 비중을 입력하여 단품 및 총 중량을 산출합니다.")
+    st.markdown("✍️ **[노란색/파란색 박스]**에 단면 치수, 길이, 비중을 KEY-IN하여 중량을 산출합니다.")
 
     col_w1, col_w2 = st.columns(2)
     with col_w1:
         st.markdown("#### 📐 제품 형상 및 치수 입력")
-        bar_shape = st.selectbox("제품 형상 선택", ["원형 (Round Bar)", "사각형 (Square / Rect Bar)", "정육각형 (Hexagon Bar)"], key="w_shape")
+        bar_shape = st.selectbox("📌 제품 형상 선택", ["원형 (Round Bar)", "사각형 (Square / Rect Bar)", "정육각형 (Hexagon Bar)"], key="w_shape")
 
         if bar_shape == "원형 (Round Bar)":
-            d_calc = st.number_input("외경 직경 D (mm)", value=25.0, step=0.5, key="w_d")
+            d_calc = st.number_input("✍️ 외경 직경 D (mm)", value=25.0, step=0.5, key="w_d")
             calc_area = (np.pi / 4.0) * (d_calc ** 2)
             shape_desc = f"원형 직경 Ø {d_calc:.2f} mm"
 
         elif bar_shape == "사각형 (Square / Rect Bar)":
             col_sq1, col_sq2 = st.columns(2)
             with col_sq1:
-                w_sq = st.number_input("폭 W (mm)", value=25.0, step=0.5, key="w_sq_w")
+                w_sq = st.number_input("✍️ 폭 W (mm)", value=25.0, step=0.5, key="w_sq_w")
             with col_sq2:
-                h_sq = st.number_input("높이 H (mm)", value=25.0, step=0.5, key="w_sq_h")
+                h_sq = st.number_input("✍️ 높이 H (mm)", value=25.0, step=0.5, key="w_sq_h")
             calc_area = w_sq * h_sq
             shape_desc = f"사각 W {w_sq:.2f} mm × H {h_sq:.2f} mm"
 
         else: # 정육각형 (Hexagon Bar)
-            w_hex = st.number_input("대면 치수 W (mm)", value=25.0, step=0.5, key="w_hex_w")
+            w_hex = st.number_input("✍️ 대면 치수 W (mm)", value=25.0, step=0.5, key="w_hex_w")
             calc_area = (np.sqrt(3.0) / 2.0) * (w_hex ** 2)
             shape_desc = f"육각 대면 W {w_hex:.2f} mm"
 
-        length_mm = st.number_input("제품 1본당 길이 L (mm)", value=3020.0, step=10.0, key="w_l")
+        length_mm = st.number_input("✍️ 제품 1본당 길이 L (mm)", value=3020.0, step=10.0, key="w_l")
         
         density_dict = {
             "Carbon Steel (7.85)": 7.85,
@@ -458,18 +478,17 @@ with tab3:
             "Stainless Steel 430 (7.70)": 7.70,
             "사용자 직접 입력": 7.85
         }
-        mat_choice = st.selectbox("재질 비중 (Specific Gravity Sg)", list(density_dict.keys()), key="w_mat")
+        mat_choice = st.selectbox("📌 재질 비중 (Specific Gravity Sg)", list(density_dict.keys()), key="w_mat")
         
         if mat_choice == "사용자 직접 입력":
-            rho = st.number_input("비중 직접 입력", value=7.85, step=0.01, key="w_rho")
+            rho = st.number_input("✍️ 비중 직접 입력", value=7.85, step=0.01, key="w_rho")
         else:
             rho = density_dict[mat_choice]
 
     with col_w2:
         st.markdown("#### 📦 수량 입력")
-        quantity = st.number_input("총 수량 (EA)", value=1, step=1, key="w_qty")
+        quantity = st.number_input("✍️ 총 수량 (EA)", value=1, step=1, key="w_qty")
         
-        # 중량 산출식: W = Area (mm²) * L (mm) * Density (g/cm³) * 10^-6
         piece_weight_kg = calc_area * length_mm * rho * (10 ** -6)
         piece_weight_lb = piece_weight_kg * 2.20462
         
@@ -491,7 +510,7 @@ with tab3:
 # ==========================================
 with tab4:
     st.subheader("4. 환산 직진도 계산기")
-    st.markdown("수요가 요구 길이/직진도와 생산 제품 길이를 직접 입력하여 **환산 직진도**를 연산합니다.")
+    st.markdown("✍️ **[노란색/파란색 박스]**에 요구 길이/직진도 및 생산 제품 길이를 KEY-IN하여 **환산 직진도**를 연산합니다.")
     
     st.info("💡 **적용 공식:** 환산 직진도 = (직진도 × 제품길이²) / 수요가길이²")
 
@@ -499,12 +518,12 @@ with tab4:
     
     with col_s1:
         st.markdown("#### 📏 수요가 기준 (Input)")
-        req_length = st.number_input("수요가길이 (mm)", value=4920.0, step=10.0, key="s_req_l")
-        req_straightness = st.number_input("직진도 (mm)", value=1.000, step=0.01, format="%.3f", key="s_req_s")
+        req_length = st.number_input("✍️ 수요가길이 (mm)", value=4920.0, step=10.0, key="s_req_l")
+        req_straightness = st.number_input("✍️ 직진도 (mm)", value=1.000, step=0.01, format="%.3f", key="s_req_s")
 
     with col_s2:
         st.markdown("#### 🏭 제품 기준 (Input)")
-        prod_length = st.number_input("제품길이 (mm)", value=1000.0, step=10.0, key="s_prod_l")
+        prod_length = st.number_input("✍️ 제품길이 (mm)", value=1000.0, step=10.0, key="s_prod_l")
 
     if req_length > 0:
         conv_straightness = (req_straightness * (prod_length ** 2)) / (req_length ** 2)
