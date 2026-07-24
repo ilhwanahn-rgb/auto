@@ -89,7 +89,7 @@ st.markdown("단면 감면율 및 3D 시각화, 인발력(형상별 & 95% 설비
 tab1, tab2, tab3, tab4 = st.tabs([
     "📐 1. 형상별 감면율 & 3D", 
     "⚡ 2. 인발력 산출 (형상/TS/95%설비검증)", 
-    "⚖️ 3. 중량 계산 (Round Bar)",
+    "⚖️ 3. 중량 계산 (원형/사각/육각)",
     "📏 4. 직진도 환산"
 ])
 
@@ -418,15 +418,36 @@ with tab2:
         st.warning("투입 선경이 제품 단면보다 커야 인발력 연산이 가능합니다.")
 
 # ==========================================
-# [TAB 3] 중량 계산 (독립형 Round Bar 엑셀식)
+# [TAB 3] 중량 계산 (원형/사각/육각 지원)
 # ==========================================
 with tab3:
-    st.subheader("3. 선재 / 봉재 규격별 중량 계산 (Round Bar)")
-    st.markdown("다른 탭과 **독립적으로 작동**하며, 직경(D), 길이(L), 비중(Sg)을 직접 입력하여 중량을 산출합니다.")
+    st.subheader("3. 선재 / 봉재 규격별 중량 계산 (원형/사각/육각)")
+    st.markdown("단면 형상(원형, 사각, 육각)을 선택하고 치수와 길이, 비중을 입력하여 단품 및 총 중량을 산출합니다.")
 
     col_w1, col_w2 = st.columns(2)
     with col_w1:
-        d_calc = st.number_input("외경 직경 D (mm)", value=25.0, step=0.5, key="w_d")
+        st.markdown("#### 📐 제품 형상 및 치수 입력")
+        bar_shape = st.selectbox("제품 형상 선택", ["원형 (Round Bar)", "사각형 (Square / Rect Bar)", "정육각형 (Hexagon Bar)"], key="w_shape")
+
+        if bar_shape == "원형 (Round Bar)":
+            d_calc = st.number_input("외경 직경 D (mm)", value=25.0, step=0.5, key="w_d")
+            calc_area = (np.pi / 4.0) * (d_calc ** 2)
+            shape_desc = f"원형 직경 Ø {d_calc:.2f} mm"
+
+        elif bar_shape == "사각형 (Square / Rect Bar)":
+            col_sq1, col_sq2 = st.columns(2)
+            with col_sq1:
+                w_sq = st.number_input("폭 W (mm)", value=25.0, step=0.5, key="w_sq_w")
+            with col_sq2:
+                h_sq = st.number_input("높이 H (mm)", value=25.0, step=0.5, key="w_sq_h")
+            calc_area = w_sq * h_sq
+            shape_desc = f"사각 W {w_sq:.2f} mm × H {h_sq:.2f} mm"
+
+        else: # 정육각형 (Hexagon Bar)
+            w_hex = st.number_input("대면 치수 W (mm)", value=25.0, step=0.5, key="w_hex_w")
+            calc_area = (np.sqrt(3.0) / 2.0) * (w_hex ** 2)
+            shape_desc = f"육각 대면 W {w_hex:.2f} mm"
+
         length_mm = st.number_input("제품 1본당 길이 L (mm)", value=3020.0, step=10.0, key="w_l")
         
         density_dict = {
@@ -445,9 +466,10 @@ with tab3:
             rho = density_dict[mat_choice]
 
     with col_w2:
+        st.markdown("#### 📦 수량 입력")
         quantity = st.number_input("총 수량 (EA)", value=1, step=1, key="w_qty")
         
-        calc_area = (np.pi / 4.0) * (d_calc ** 2)
+        # 중량 산출식: W = Area (mm²) * L (mm) * Density (g/cm³) * 10^-6
         piece_weight_kg = calc_area * length_mm * rho * (10 ** -6)
         piece_weight_lb = piece_weight_kg * 2.20462
         
@@ -455,14 +477,14 @@ with tab3:
         total_weight_ton = total_weight_kg / 1000.0
 
     st.markdown("---")
-    st.markdown("### * ACTUAL CALCULATION (계산 결과)")
+    st.markdown("### 📊 중량 산출 연산 결과")
     wc1, wc2, wc3 = st.columns(3)
     
-    wc1.metric("단품 1본 중량 (kg)", f"{piece_weight_kg:.2f} kg", f"단면적: {calc_area:.2f} mm²", delta_color="off")
-    wc2.metric("단품 1본 중량 (lb)", f"{piece_weight_lb:.2f} lb", delta_color="off")
-    wc3.metric(f"총 중량 (Total Weight, {quantity}EA)", f"{total_weight_kg:.2f} kg", f"{total_weight_ton:.3f} Ton")
+    wc1.metric("단품 1본 중량 (kg)", f"{piece_weight_kg:.3f} kg", f"단면적: {calc_area:.2f} mm² ({shape_desc})", delta_color="off")
+    wc2.metric("단품 1본 중량 (lb)", f"{piece_weight_lb:.3f} lb", delta_color="off")
+    wc3.metric(f"총 중량 (Total Weight, {quantity} EA)", f"{total_weight_kg:.2f} kg", f"{total_weight_ton:.4f} Ton")
 
-    st.info("💡 **적용 공식:** W (Weight) = π / 4 * L * D² * Sg (단위 변환 10⁻⁶ 적용)")
+    st.info("💡 **적용 공식:** 중량(kg) = 단면적(A, mm²) × 길이(L, mm) × 비중(Sg) × 10⁻⁶")
 
 # ==========================================
 # [TAB 4] 직진도 환산 (엑셀 수식 적용)
