@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 # --- 페이지 기본 설정 ---
 st.set_page_config(page_title="선재/이형재 인발 소성가공 종합 산출 도구", layout="wide")
 
-# --- 탭(Tab) 글자 크기 및 굵기 커스텀 CSS ---
+# --- 탭(Tab) 글자 크기(20px) 및 굵기(Bold) 커스텀 CSS ---
 st.markdown("""
     <style>
     /* 1. 기본 탭 글자 크기, 굵기, 색상 대폭 강화 */
@@ -27,7 +27,7 @@ st.markdown("""
         border-bottom-width: 4px !important;
     }
 
-    /* 3. 마우스 올렸을 때(Hover) 효과 */
+    /* 3. 마우스 호버 효과 */
     button[data-baseweb="tab"]:hover {
         color: #2563eb !important;
     }
@@ -35,13 +35,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🛠️ 선재/이형재 인발 소성가공 종합 산출 도구")
-st.markdown("단면 감면율, 인발력(95% 설비 검증), 중량, 직진도 환산 연산을 통합 처리하는 엔지니어링 계산기입니다.")
+st.markdown("단면 감면율 및 3D 시각화, 인발력(95% 설비검증), 중량 계산, 직진도 환산 연산을 각각 **독립적**으로 처리하는 종합 계산기입니다.")
 
-# --- 탭 구성 ---
+# --- 탭 구성 (4개 독립 모듈) ---
 tab1, tab2, tab3, tab4 = st.tabs([
     "1. 형상별 감면율 & 3D", 
     "2. 인발력 산출 (TS 및 95% 설비검증)", 
-    "3. 중량 계산 (Round Bar)", 
+    "3. 중량 계산 (Round Bar)",
     "4. 직진도 환산"
 ])
 
@@ -85,10 +85,11 @@ def generate_shape_points(shape, w, h, r, n_points=120):
         return pts[:, 0], pts[:, 1]
 
 # ==========================================
-# [TAB 1] 형상별 감면율 및 3D 시각화
+# [TAB 1] 형상별 감면율 및 3D 시각화 (독립 연산)
 # ==========================================
 with tab1:
-    st.subheader("1. 입력 소재 및 목표 형상 치수")
+    st.subheader("1. 형상별 감면율 산출 및 2D/3D 시각화")
+    st.markdown("입력 원형 선경과 목표 출력 형상 치수를 조절하여 **감면율, 대각 치수, 2D 단면 및 3D 솔리드 형상**을 산출합니다.")
     
     col_in1, col_in2 = st.columns(2)
     with col_in1:
@@ -121,11 +122,6 @@ with tab1:
     RA = (1.0 - A2 / A1) * 100.0 if A1 > 0 else 0.0
     elongation = A1 / A2 if A2 > 0 else 0.0
     d_eq = np.sqrt(4 * A2 / np.pi) if A2 > 0 else 0.0
-
-    st.session_state['A1'] = A1
-    st.session_state['A2'] = A2
-    st.session_state['RA'] = RA
-    st.session_state['d_in'] = d_in
 
     st.markdown("---")
     c1, c2, c3, c4 = st.columns(4)
@@ -167,21 +163,13 @@ with tab1:
     col_r.plotly_chart(fig_3d, use_container_width=True)
 
 # ==========================================
-# [TAB 2] 인발력 산출 (강종별 TS 및 설비 95% 부하 판정)
+# [TAB 2] 인발력 산출 (독립 KEY-IN & 엑셀 공식 적용)
 # ==========================================
 with tab2:
     st.subheader("2. 강종별 인발력 및 설비 부하(95% 한계) 검증")
-    st.markdown("소재 강종의 인장강도(T.S)와 단면 변형량을 반영하여 **필요 인발력(t)**을 산출하고, **설비별 작업 가능 여부**를 검증합니다.")
+    st.markdown("투입선경(W/ROD)과 제품선경, 강종별 T.S를 직접 입력하여 **현장 엑셀 인발력 공식**으로 산출하고 설비 적합성을 검증합니다.")
 
-    a1_val = st.session_state.get('A1', A1)
-    a2_val = st.session_state.get('A2', A2)
-    ra_val = st.session_state.get('RA', RA)
-    d_in_val = st.session_state.get('d_in', d_in)
-    
-    d_out_val = np.sqrt(4 * a2_val / np.pi) if a2_val > 0 else 0.0
-
-    st.info(f"💡 **현재 단면 조건:** 원재 선경 Ø **{d_in_val:.2f} mm** (A₁={a1_val:.2f}mm²) ➔ 제품 등가선경 Ø **{d_out_val:.2f} mm** (A₂={a2_val:.2f}mm²) | **감면율 = {ra_val:.2f} %**")
-
+    # 설비 DB (95% 한계 기준)
     machines_db = [
         {"name": "CD-0-2호기", "min_d": 3.8,  "max_d": 6.0,  "max_cap": 2.0},
         {"name": "CD-0-3호기", "min_d": 5.49, "max_d": 9.0,  "max_cap": 2.0},
@@ -192,10 +180,11 @@ with tab2:
         {"name": "CD-4호기",   "min_d": 19.0, "max_d": 41.0, "max_cap": 25.0},
     ]
 
+    # 강종 DB (T.S: kgf/mm²)
     steel_ts_db = {
-        # --- 이미지 표 데이터 ---
-        "SUM24L (W/R)": 42.0,
+        # 이미지 표 데이터
         "SUM22 (W/R)": 40.0,
+        "SUM24L (W/R)": 42.0,
         "SUM43 (W/R)": 69.0,
         "10A / SWRCH10A (W/R)": 36.0,
         "12A / SWRCH12A (W/R)": 39.0,
@@ -218,7 +207,7 @@ with tab2:
         "XM7 (원재)": 75.0,
         "XM7 (12% 인발시)": 94.0,
 
-        # --- PDF 세아특수강 조직분석 자료 DB ---
+        # PDF 세아특수강 조직분석 자료 DB[cite: 1]
         "SUYB1 (전자연철봉)": 33.5,[cite: 1]
         "SWRCH6A (냉간압조용)": 33.1,[cite: 1]
         "SWRCH8A (냉간압조용)": 34.2,[cite: 1]
@@ -264,46 +253,43 @@ with tab2:
         "POSA1038B (POSCO)": 64.2,[cite: 1]
         "POSA1021B (POSCO)": 52.6,[cite: 1]
         "POSA5120BH (POSCO)": 53.7,[cite: 1]
-        "사용자 직접 입력": 60.0
+        "사용자 직접 입력": 70.0
     }
 
     col_f1, col_f2 = st.columns(2)
     
     with col_f1:
+        st.markdown("#### 📥 치수 및 강종 KEY-IN 입력")
+        d_in_t2 = st.number_input("투입 선경 W/ROD (MM)", value=19.0, min_value=1.0, step=0.1, key="t2_din_keyin")
+        d_out_t2 = st.number_input("제품 선경 (MM)", value=16.23, min_value=0.5, step=0.01, key="t2_dout_keyin")
+        
         steel_choice = st.selectbox("강종 선택 (T.S 적용)", list(steel_ts_db.keys()), key="t2_steel")
         
         if steel_choice == "사용자 직접 입력":
-            ts_kgf = st.number_input("인장강도 T.S (kgf/mm²)", value=60.0, step=5.0, key="t2_custom_ts")
+            ts_kgf = st.number_input("T.S (W/ROD) (kgf/mm²)", value=70.0, step=1.0, key="t2_custom_ts")
         else:
             ts_kgf = steel_ts_db[steel_choice]
-            
-        ts_mpa = ts_kgf * 9.80665
-        st.write(f"📌 **선택 강종 T.S:** `{ts_kgf:.1f} kgf/mm²` (≒ `{ts_mpa:.1f} N/mm²`)")
 
-        v_speed = st.number_input("인발 속도 (m/min)", value=30.0, step=5.0, key="t2_speed")
+    # 면적 및 감면율 연산
+    a1_t2 = (np.pi / 4.0) * (d_in_t2 ** 2)
+    a2_t2 = (np.pi / 4.0) * (d_out_t2 ** 2)
+    ra_ratio = (a1_t2 - a2_t2) / a1_t2 if a1_t2 > 0 else 0.0
+    ra_percent = ra_ratio * 100.0
 
     with col_f2:
-        die_angle = st.number_input("다이스 전각 2α (도, degree)", value=12.0, step=1.0, key="t2_angle")
-        alpha_rad = (die_angle / 2.0) * (np.pi / 180.0)
-        
-        mu = st.slider("다이스 마찰계수 (μ)", 0.01, 0.20, 0.07, 0.01, key="t2_mu")
+        st.markdown("#### 📐 자동 연산 결과")
+        st.write(f"• **투입 면적 (C3):** `{a1_t2:.2f} mm²`")
+        st.write(f"• **제품 면적 (D3):** `{a2_t2:.3f} mm²`")
+        st.write(f"• **감면율 (E2):** `{ra_ratio:.6f}` (`{ra_percent:.2f}%`)")
+        st.write(f"• **T.S (W/ROD) (C4):** `{ts_kgf:.1f} kgf/mm²`")
 
-    if a1_val > a2_val and a2_val > 0:
-        ln_area = np.log(a1_val / a2_val)
-        sigma_d = ts_mpa * ((1.0 + mu / np.tan(alpha_rad)) * ln_area + (2.0 / 3.0) * alpha_rad)
-        
-        force_N = a2_val * sigma_d
-        force_ton = force_N / 9806.65
-        
-        force_kN = force_N / 1000.0
-        power_kW = (force_kN * v_speed) / 60.0
+    # 엑셀 공식: = 1.25 / 0.35 * D3 * C4 * (0.03 + 0.55 * E2) / 1000
+    if d_in_t2 > d_out_t2 and d_out_t2 > 0:
+        force_ton = (1.25 / 0.35) * a2_t2 * ts_kgf * (0.03 + 0.55 * ra_ratio) / 1000.0
 
         st.markdown("---")
-        
-        m1, m2, m3 = st.columns(3)
-        m1.metric("소요 인발력 (Calculated Force)", f"{force_ton:.2f} t", f"{force_kN:.1f} kN")
-        m2.metric("인발 응력 (Drawing Stress)", f"{sigma_d:.1f} MPa", f"{sigma_d / 9.80665:.1f} kgf/mm²")
-        m3.metric("소요 동력 (Power)", f"{power_kW:.2f} kW", f"{power_kW * 1.341:.1f} HP")
+        st.metric("산출 인발력 (TON)", f"{force_ton:.4f} Ton", f"{force_ton * 9.80665:.2f} kN")
+        st.info("💡 **적용 엑셀 공식:** 인발력 (TON) = 1.25 / 0.35 × 제품면적(D3) × T.S(C4) × (0.03 + 0.55 × 감면율(E2)) / 1000")
 
         st.markdown("---")
         st.markdown("### 🏭 설비별 작업 가능 여부 검증 (설비 능력 95% 제한 기준)")
@@ -312,7 +298,7 @@ with tab2:
         matched_machines = []
 
         for m in machines_db:
-            size_ok = (m["min_d"] <= d_out_val <= m["max_d"])
+            size_ok = (m["min_d"] <= d_out_t2 <= m["max_d"])
             usable_cap = m["max_cap"] * 0.95
             force_ok = (force_ton <= usable_cap)
             load_ratio = (force_ton / usable_cap) * 100.0 if usable_cap > 0 else 0.0
@@ -330,28 +316,28 @@ with tab2:
                 "작업 가능 제품선경": f"{m['min_d']} ~ {m['max_d']} mm",
                 "설비 Max 톤수": f"{m['max_cap']:.1f} t",
                 "95% 한계 인발력": f"{usable_cap:.2f} t",
-                "소요 인발력": f"{force_ton:.2f} t",
+                "소요 인발력": f"{force_ton:.4f} t",
                 "설비 부하율": f"{load_ratio:.1f} %",
                 "판정 결과": status
             })
 
         if matched_machines:
-            st.success(f"✅ **현재 작업 조건(Ø{d_out_val:.2f}mm / {force_ton:.2f}t)에 이상이 없는 추천 설비:** " + ", ".join(matched_machines))
+            st.success(f"✅ **현재 작업 조건(Ø{d_out_t2:.2f}mm / {force_ton:.4f}t)에 이상이 없는 추천 설비:** " + ", ".join(matched_machines))
         else:
-            st.error(f"⚠️ **경고:** 현재 소요 인발력({force_ton:.2f}t) 및 제품선경(Ø{d_out_val:.2f}mm) 조건에 안전하게(95% 이내) 작업할 수 있는 설비가 없습니다.")
+            st.error(f"⚠️ **경고:** 현재 소요 인발력({force_ton:.4f}t) 및 제품선경(Ø{d_out_t2:.2f}mm) 조건에 안전하게(95% 이내) 작업할 수 있는 설비가 없습니다.")
 
         df_m = pd.DataFrame(m_eval_data)
         st.dataframe(df_m, use_container_width=True)
 
     else:
-        st.warning("출력 단면적(A₂)이 입력 단면적(A₁)보다 작아야 인발력 계산이 가능합니다.")
+        st.warning("투입 선경이 제품 선경보다 커야 인발력 연산이 가능합니다.")
 
 # ==========================================
-# [TAB 3] 중량 계산 (독립형 Round Bar 엑셀식)
+# [TAB 3] 중량 계산 (독립 KEY-IN & Round Bar 엑셀식)
 # ==========================================
 with tab3:
     st.subheader("3. 선재 / 봉재 규격별 중량 계산 (Round Bar)")
-    st.markdown("단면/인발력 탭과 **독립적으로 작동**하며, 직경(D), 길이(L), 비중(Sg)을 직접 입력하여 중량을 산출합니다.")
+    st.markdown("다른 탭과 **독립적으로 작동**하며, 직경(D), 길이(L), 비중(Sg)을 직접 입력하여 중량을 산출합니다.")
 
     col_w1, col_w2 = st.columns(2)
     with col_w1:
@@ -376,6 +362,7 @@ with tab3:
     with col_w2:
         quantity = st.number_input("총 수량 (EA)", value=1, step=1, key="w_qty")
         
+        # 엑셀 공식: W = π/4 * L * D² * Sg (단위 변환 포함 10^-6)
         calc_area = (np.pi / 4.0) * (d_calc ** 2)
         piece_weight_kg = calc_area * length_mm * rho * (10 ** -6)
         piece_weight_lb = piece_weight_kg * 2.20462
@@ -394,11 +381,11 @@ with tab3:
     st.info("💡 **적용 공식:** W (Weight) = π / 4 * L * D² * Sg (단위 변환 10⁻⁶ 적용)")
 
 # ==========================================
-# [TAB 4] 직진도 환산 (엑셀 수식 적용)
+# [TAB 4] 직진도 환산 (독립 KEY-IN & 엑셀 수식 적용)
 # ==========================================
 with tab4:
     st.subheader("4. 환산 직진도 계산기")
-    st.markdown("수요가에서 요구하는 기준 길이와 직진도를 바탕으로, 실제 생산되는 제품 길이에 맞춘 **환산 직진도**를 계산합니다.")
+    st.markdown("수요가 요구 길이/직진도와 생산 제품 길이를 직접 입력하여 **환산 직진도**를 연산합니다.")
     
     st.info("💡 **적용 공식:** 환산 직진도 = (직진도 × 제품길이²) / 수요가길이²")
 
@@ -413,6 +400,7 @@ with tab4:
         st.markdown("#### 🏭 제품 기준 (Input)")
         prod_length = st.number_input("제품길이 (mm)", value=1000.0, step=10.0, key="s_prod_l")
 
+    # 엑셀 환산 수식: ((Q) * (R^2)) / (P^2)
     if req_length > 0:
         conv_straightness = (req_straightness * (prod_length ** 2)) / (req_length ** 2)
     else:
