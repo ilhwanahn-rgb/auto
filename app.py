@@ -6,62 +6,78 @@ import plotly.graph_objects as go
 # --- 페이지 기본 설정 ---
 st.set_page_config(page_title="선재/이형재 인발 소성가공 종합 산출 도구", layout="wide")
 
-# --- 눈이 편안한 모던 소프트 슬레이트 테마 (CSS) ---
+# --- 탭(Tab) 시안성 및 입체감 극대화 CSS ---
 st.markdown("""
     <style>
-    /* 1. 전체 배경: 눈이 편안한 은은한 연회색 */
+    /* 전체 배경: 눈이 편안한 모던 슬레이트 톤 */
     .stApp {
-        background-color: #f1f5f9 !important;
+        background-color: #f8fafc !important;
         color: #0f172a !important;
     }
     
-    /* 2. 헤더 및 일반 텍스트 색상 (선명한 다크 슬레이트) */
-    h1, h2, h3, h4, h5, h6, p, label, .stMarkdown {
-        color: #0f172a !important;
+    /* 탭(Tab) 전체 영역 컨테이너 여백 */
+    div[data-baseweb="tab-list"] {
+        gap: 8px !important;
+        background-color: transparent !important;
+        padding-bottom: 8px !important;
+        border-bottom: 2px solid #cbd5e1 !important;
     }
-    
-    /* 3. 탭(Tab) 블록 카드 스타일 (크기 19px, Bold) */
-    button[data-baseweb="tab"] {
+
+    /* 탭 버튼 기본 스타일 (입체 카드 형태) */
+    button[data-baseweb="tab"], [data-testid="stTab"] {
         font-size: 19px !important;
         font-weight: 800 !important;
-        color: #475569 !important;
-        background-color: #e2e8f0 !important;
-        border-radius: 8px 8px 0px 0px !important;
-        margin-right: 6px !important;
+        color: #334155 !important;
+        background-color: #ffffff !important;
+        border: 2px solid #cbd5e1 !important;
+        border-radius: 10px 10px 0px 0px !important;
         padding: 12px 24px !important;
-        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05) !important;
+        transition: all 0.2s ease-in-out !important;
     }
-    
-    /* 4. 선택된 탭: 선명한 딥 블루 하이라이트 */
-    button[data-baseweb="tab"][aria-selected="true"] {
+
+    /* 탭 마우스 호버 효과 */
+    button[data-baseweb="tab"]:hover {
+        background-color: #e2e8f0 !important;
+        color: #1e3a8a !important;
+        border-color: #94a3b8 !important;
+    }
+
+    /* 선택된 활성화 탭 (강력한 부각 및 딥블루 하이라이트) */
+    button[data-baseweb="tab"][aria-selected="true"], [data-testid="stTab"][aria-selected="true"] {
         color: #ffffff !important;
-        background-color: #1e40af !important;
-        border-bottom: 4px solid #1d4ed8 !important;
+        background-color: #1e40af !important; /* 강렬한 딥블루 */
+        border: 2px solid #1d4ed8 !important;
+        border-bottom: 5px solid #2563eb !important;
+        box-shadow: 0px 4px 12px rgba(30, 64, 175, 0.35) !important;
+        transform: translateY(-2px) !important;
     }
     
-    /* 5. 지표 카드(Metric) 소프트 모드 스타일 */
+    /* 지표 카드(Metric) 입체 스타일 */
     [data-testid="stMetric"] {
         background-color: #ffffff !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 10px !important;
-        padding: 14px !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
     }
     [data-testid="stMetricLabel"] {
         color: #475569 !important;
         font-size: 15px !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
     }
     [data-testid="stMetricValue"] {
         color: #1e40af !important;
         font-weight: 800 !important;
     }
 
-    /* 6. 입력창 및 셀렉트박스 깔끔한 화이트 스타일 */
+    /* 입력창 및 셀렉트박스 보더 강화 */
     .stNumberInput input, .stSelectbox div[data-baseweb="select"] {
         background-color: #ffffff !important;
         color: #0f172a !important;
-        border-color: #94a3b8 !important;
+        border: 2px solid #94a3b8 !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -69,12 +85,12 @@ st.markdown("""
 st.title("🛠️ 선재/이형재 인발 소성가공 종합 산출 도구")
 st.markdown("단면 감면율 및 3D 시각화, 인발력(형상별 & 95% 설비검증), 중량 계산, 직진도 환산 연산 통합 도구입니다.")
 
-# --- 탭 구성 (4개 독립 모듈) ---
+# --- 탭 구성 (4개 독립 모듈 & 직관적 아이콘 적용) ---
 tab1, tab2, tab3, tab4 = st.tabs([
-    "1. 형상별 감면율 & 3D", 
-    "2. 인발력 산출 (형상별/TS/설비검증)", 
-    "3. 중량 계산 (Round Bar)",
-    "4. 직진도 환산"
+    "📐 1. 형상별 감면율 & 3D", 
+    "⚡ 2. 인발력 산출 (형상/TS/95%설비검증)", 
+    "⚖️ 3. 중량 계산 (Round Bar)",
+    "📏 4. 직진도 환산"
 ])
 
 # ==========================================
@@ -212,86 +228,86 @@ with tab2:
         {"name": "CD-4호기",   "min_d": 19.0, "max_d": 41.0, "max_cap": 25.0},
     ]
 
-    # PDF W/R 분류 체계 기준 강종 DB (T.S: kgf/mm²)
+    # PDF W/R 분류 체계 기준 강종 DB (T.S: kgf/mm²)[cite: 2]
     steel_categories = {
         "1. 전자연철봉": {
-            "SUYB1": 33.5
+            "SUYB1": 33.5[cite: 2]
         },
         "2. 냉간압조용 탄소강 (SWRCH / Boron)": {
-            "SWRCH6A": 33.1,
-            "SWRCH8A": 34.2,
-            "SWRCH10A (10A)": 35.5,
-            "SWRCH12A (12A)": 38.8,
-            "SWRCH15K": 41.4,
-            "SWRCH18A": 46.4,
-            "SWRCH20K": 44.4,
-            "SWRCH22A": 47.1,
-            "SWRCH25K(F)": 49.5,
-            "SWRCH30K": 58.3,
-            "SWRCH35K(F)": 60.5,
-            "SWRCH38K(F)": 60.9,
-            "SWRCH45K(F) (45K)": 64.7,
-            "AISI/SAE 10B21": 51.1,
-            "AISI/SAE 10B30": 57.6,
-            "AISI/SAE 10B35": 60.8,
-            "AISI/SAE 10B38": 64.1
+            "SWRCH6A": 33.1,[cite: 2]
+            "SWRCH8A": 34.2,[cite: 2]
+            "SWRCH10A (10A)": 35.5,[cite: 2]
+            "SWRCH12A (12A)": 38.8,[cite: 2]
+            "SWRCH15K": 41.4,[cite: 2]
+            "SWRCH18A": 46.4,[cite: 2]
+            "SWRCH20K": 44.4,[cite: 2]
+            "SWRCH22A": 47.1,[cite: 2]
+            "SWRCH25K(F)": 49.5,[cite: 2]
+            "SWRCH30K": 58.3,[cite: 2]
+            "SWRCH35K(F)": 60.5,[cite: 2]
+            "SWRCH38K(F)": 60.9,[cite: 2]
+            "SWRCH45K(F) (45K)": 64.7,[cite: 2]
+            "AISI/SAE 10B21": 51.1,[cite: 2]
+            "AISI/SAE 10B30": 57.6,[cite: 2]
+            "AISI/SAE 10B35": 60.8,[cite: 2]
+            "AISI/SAE 10B38": 64.1[cite: 2]
         },
         "3. 기계구조용강 (S-C계열)": {
-            "S20C": 48.5,
-            "S25C": 51.6,
-            "S35C": 69.9,
-            "S45C (W/R)": 71.0,
-            "S48C": 78.2
+            "S20C": 48.5,[cite: 2]
+            "S25C": 51.6,[cite: 2]
+            "S35C": 69.9,[cite: 2]
+            "S45C (W/R)": 71.0,[cite: 2]
+            "S48C": 78.2[cite: 2]
         },
         "4. 경화능 보증 구조용강 (H계열)": {
-            "SCr415H": 52.2,
-            "SCr420H": 58.2,
-            "SCM415 (W/R)": 60.0,
-            "SCM420 (W/R)": 79.0,
-            "SCM435 (W/R)": 96.0,
-            "SCM440 (W/R)": 104.0,
+            "SCr415H": 52.2,[cite: 2]
+            "SCr420H": 58.2,[cite: 2]
+            "SCM415 (W/R)": 60.0,[cite: 2]
+            "SCM420 (W/R)": 79.0,[cite: 2]
+            "SCM435 (W/R)": 96.0,[cite: 2]
+            "SCM440 (W/R)": 104.0,[cite: 2]
             "W/R-SNCM220H": 73.0,
-            "LA-SNCM220H (SL04)": 58.0
+            "LA-SNCM220H (SL04)": 58.0[cite: 2]
         },
         "5. 베어링 / 스프링 / 고온합금강": {
-            "SUJ2 (베어링강)": 115.0,
-            "SUP9 (스프링강)": 95.0,
-            "SNB16 (고온합금강볼트)": 118.2,
+            "SUJ2 (베어링강)": 115.0,[cite: 2]
+            "SUP9 (스프링강)": 95.0,[cite: 2]
+            "SNB16 (고온합금강볼트)": 118.2,[cite: 2]
             "SA-100CRMNS7-4": 80.0
         },
         "6. 쾌삭강 (SUM)": {
-            "SUM22 (W/R)": 40.0,
-            "SUM24L (W/R)": 42.0,
-            "SUM43 (W/R)": 69.0,
-            "AISI/SAE 1151": 72.3
+            "SUM22 (W/R)": 40.0,[cite: 2]
+            "SUM24L (W/R)": 42.0,[cite: 2]
+            "SUM43 (W/R)": 69.0,[cite: 2]
+            "AISI/SAE 1151": 72.3[cite: 2]
         },
         "7. 스테인리스강 (STS / SUS)": {
-            "SUS303C": 52.8,
-            "SUS303F": 59.9,
-            "SUS304 (W/R)": 58.0,
-            "SUS316L (W/R)": 54.0,
-            "SUS410": 57.9,
-            "SUS416": 56.8,
-            "SUS420J2": 68.5,
-            "SUS430F": 56.6,
+            "SUS303C": 52.8,[cite: 2]
+            "SUS303F": 59.9,[cite: 2]
+            "SUS304 (W/R)": 58.0,[cite: 2]
+            "SUS316L (W/R)": 54.0,[cite: 2]
+            "SUS410": 57.9,[cite: 2]
+            "SUS416": 56.8,[cite: 2]
+            "SUS420J2": 68.5,[cite: 2]
+            "SUS430F": 56.6,[cite: 2]
             "W/R-SUS440C": 77.0,
-            "XM7 (원재)": 75.0,
-            "XM7 (12% 인발시)": 94.0
+            "XM7 (원재)": 75.0,[cite: 2]
+            "XM7 (12% 인발시)": 94.0[cite: 2]
         },
         "8. 기타 열처리 & 합금/포스코강": {
             "W/R-SNCM439": 110.0,
             "SA-SNCM439": 71.0,
-            "AISI/SAE 1050SH": 82.5,
-            "AISI/SAE 1060S": 87.1,
-            "AISI/SAE 1541": 81.0,
-            "AISI/SAE 4140": 114.0,
-            "AISI/SAE 4037": 65.1,
-            "AISI/SAE 9254": 96.7,
-            "POSMA45R": 82.6,
-            "POSMA45RM": 76.0,
-            "POSA1038B": 64.2,
-            "POSA1021B": 52.6,
-            "POSA5120BH": 53.7
+            "AISI/SAE 1050SH": 82.5,[cite: 2]
+            "AISI/SAE 1060S": 87.1,[cite: 2]
+            "AISI/SAE 1541": 81.0,[cite: 2]
+            "AISI/SAE 4140": 114.0,[cite: 2]
+            "AISI/SAE 4037": 65.1,[cite: 2]
+            "AISI/SAE 9254": 96.7,[cite: 2]
+            "POSMA45R": 82.6,[cite: 2]
+            "POSMA45RM": 76.0,[cite: 2]
+            "POSA1038B": 64.2,[cite: 2]
+            "POSA1021B": 52.6,[cite: 2]
+            "POSA5120BH": 53.7[cite: 2]
         },
         "9. 사용자 직접 입력": {
             "직접 입력": 40.0
