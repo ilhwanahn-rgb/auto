@@ -157,11 +157,11 @@ def generate_shape_points(shape, w, h, r, n_points=120):
         return pts[:, 0], pts[:, 1]
 
 # ==========================================
-# [TAB 1] 형상별 감면율 및 모서리 충전 정밀 분석
+# [TAB 1] 형상별 감면율 및 모서리 충전/외관 예측
 # ==========================================
 with tab1:
-    st.subheader("1. 형상별 감면율 산출 및 모서리 충전(실측 대각) 2D/3D 분석")
-    st.markdown("✍️ **[노란색/파란색 박스]**에 입력 치수를 KEY-IN하여 감면율 및 **실측 예상 대각선 치수**를 연산합니다.")
+    st.subheader("1. 형상별 감면율 산출 및 모서리 충전(외관 R부위) 정밀 예측")
+    st.markdown("✍️ **[노란색/파란색 박스]**에 입력 치수를 KEY-IN하면 감면율 및 **모서리 R부위 외관 상태**를 자동 예측합니다.")
     
     col_in1, col_in2 = st.columns(2)
     with col_in1:
@@ -195,7 +195,7 @@ with tab1:
     elongation = A1 / A2 if A2 > 0 else 0.0
     d_eq = np.sqrt(4 * A2 / np.pi) if A2 > 0 else 0.0
 
-    # --- 감면율 기반 모서리 충전율(Corner Fill) 및 예측 대각선 보정 연산 ---
+    # --- 감면율 기반 모서리 충전율(Corner Fill) 및 외관 상태 예측 모델 ---
     if RA > 0 and shape_type != "이형 (트랙/장원형)":
         delta_r = 0.18 * W * np.exp(-5.2 * (RA / 100.0))
         r_eff = R + delta_r
@@ -204,17 +204,38 @@ with tab1:
         else: # 사각형
             max_diag_eff = np.sqrt(W**2 + H**2) - 2 * r_eff * (np.sqrt(2) - 1)
         fill_ratio = min(100.0, max(0.0, (max_diag_eff / max_diag) * 100.0))
+
+        # 모서리 R부위 외관 상태 판정
+        if fill_ratio >= 98.5:
+            appearance_status = "🟢 각이 또렷함 (Sharp & Fully-filled)"
+            appearance_desc = "가공 압력이 충분하여 금속이 다이스 모서리 구석까지 꽉 채워집니다. 모서리 각이 선명합니다."
+        elif fill_ratio >= 95.0:
+            appearance_status = "🟡 미세 둥글림 (Slightly Rounded)"
+            appearance_desc = "가공 압력이 약간 부족하여 모서리 끝단에 미세한 둥글기가 생기며, 대각 치수가 소폭 부족할 수 있습니다."
+        else:
+            appearance_status = "🔴 둔한 모서리 / 미충전 (Unfilled)"
+            appearance_desc = "가공 압력 부족으로 모서리 미충전(Unfill)이 발생하여 원형 모재의 둥근 잔상이 남습니다."
     else:
         r_eff = R
         max_diag_eff = max_diag
         fill_ratio = 100.0
+        appearance_status = "⚪ 기본 단면"
+        appearance_desc = "원형 또는 트랙형 단면입니다."
 
     st.markdown("---")
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("소재 원형 단면적 (A₁)", f"{A1:.2f} mm²", f"원형 직경 Ø {d_in:.2f} mm", delta_color="off")
     c2.metric("성형 후 단면적 (A₂)", f"{A2:.2f} mm²", f"감면율 (RA) {RA:.2f} %", delta_color="normal")
     c3.metric("이론 대각 치수 (금형기준)", f"{max_diag:.2f} mm", f"다이스 설계 R {R:.2f} mm", delta_color="off")
-    c4.metric("🎯 예측 실측 대각 치수", f"{max_diag_eff:.2f} mm", f"모서리 충전율 {fill_ratio:.1f}% (실측 R {r_eff:.2f}mm)", delta_color="normal")
+    c4.metric("🎯 예측 실측 대각 치수", f"{max_diag_eff:.2f} mm", f"충전율 {fill_ratio:.1f}% (실측 R {r_eff:.2f}mm)", delta_color="normal")
+
+    # 모서리 R부위 외관 상태진단 메시지 출력
+    if fill_ratio >= 98.5:
+        st.success(f"🔍 **모서리(R부위) 외관 예측 결과:** {appearance_status}  \n💡 {appearance_desc}")
+    elif fill_ratio >= 95.0:
+        st.warning(f"🔍 **모서리(R부위) 외관 예측 결과:** {appearance_status}  \n💡 {appearance_desc}")
+    elif shape_type != "이형 (트랙/장원형)":
+        st.error(f"🔍 **모서리(R부위) 외관 예측 결과:** {appearance_status}  \n💡 {appearance_desc}")
 
     col_l, col_r = st.columns(2)
     n_pts = 120
