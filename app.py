@@ -46,7 +46,7 @@ st.markdown("""
     /* 선택된 활성화 탭 (강력한 부각 및 딥블루 하이라이트) */
     button[data-baseweb="tab"][aria-selected="true"], [data-testid="stTab"][aria-selected="true"] {
         color: #ffffff !important;
-        background-color: #1e40af !important; /* 강렬한 딥블루 */
+        background-color: #1e40af !important;
         border: 2px solid #1d4ed8 !important;
         border-bottom: 5px solid #2563eb !important;
         box-shadow: 0px 4px 12px rgba(30, 64, 175, 0.35) !important;
@@ -56,15 +56,15 @@ st.markdown("""
     /* 2. 입력창 라벨(제목) 글자 강조 */
     div[data-testid="stWidgetLabel"] label p {
         font-weight: 800 !important;
-        color: #1e3a8a !important; /* 진한 남색 */
+        color: #1e3a8a !important;
         font-size: 16px !important;
     }
 
-    /* 3. KEY-IN (숫자 입력창) 전용 하이라이트 - 엑셀 입력셀 스타일 (연노랑 배경 + 파란 테두리) */
+    /* 3. KEY-IN (숫자 입력창) 전용 하이라이트 - 연노랑 배경 + 파란 테두리 */
     .stNumberInput input {
-        background-color: #fefce8 !important; /* 파스텔 연노랑 */
+        background-color: #fefce8 !important;
         color: #0f172a !important;
-        border: 2.5px solid #2563eb !important; /* 선명한 파란색 테두리 */
+        border: 2.5px solid #2563eb !important;
         border-radius: 8px !important;
         font-weight: 800 !important;
         font-size: 17px !important;
@@ -76,9 +76,9 @@ st.markdown("""
         box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25) !important;
     }
 
-    /* 4. 드롭다운 (Selectbox) KEY-IN 하이라이트 - (파스텔 스카이블루 배경 + 딥사이안 테두리) */
+    /* 4. 드롭다운 (Selectbox) KEY-IN 하이라이트 - 파스텔 스카이블루 배경 + 딥사이안 테두리 */
     .stSelectbox div[data-baseweb="select"] {
-        background-color: #f0f9ff !important; /* 파스텔 스카이블루 */
+        background-color: #f0f9ff !important;
         color: #0f172a !important;
         border: 2.5px solid #0284c7 !important;
         border-radius: 8px !important;
@@ -86,7 +86,7 @@ st.markdown("""
         font-size: 16px !important;
     }
 
-    /* 5. 계산 결과 지표 카드(Metric) 입체 스타일 (화이트 배경으로 입력창과 확실히 구분) */
+    /* 5. 계산 결과 지표 카드(Metric) 입체 스타일 */
     [data-testid="stMetric"] {
         background-color: #ffffff !important;
         border: 2px solid #cbd5e1 !important;
@@ -157,29 +157,29 @@ def generate_shape_points(shape, w, h, r, n_points=120):
         return pts[:, 0], pts[:, 1]
 
 # ==========================================
-# [TAB 1] 형상별 감면율 및 3D 시각화
+# [TAB 1] 형상별 감면율 및 3D 시각화 (모서리 충전 예측 모델 보정)
 # ==========================================
 with tab1:
     st.subheader("1. 형상별 감면율 산출 및 2D/3D 시각화")
-    st.markdown("✍️ **[노란색/파란색 박스]**에 입력 치수를 KEY-IN하여 연산 결과를 확인하세요.")
+    st.markdown("✍️ **[노란색/파란색 박스]**에 입력 치수를 KEY-IN하면 감면율에 따른 **실측 예상 대각선 치수**가 함께 연산됩니다.")
     
     col_in1, col_in2 = st.columns(2)
     with col_in1:
-        d_in = st.number_input("✍️ 입력 원형 선경 d (mm)", value=30.0, min_value=1.0, step=0.5, key="t1_din")
+        d_in = st.number_input("✍️ 입력 원형 선경 d (mm)", value=28.0, min_value=1.0, step=0.5, key="t1_din")
         shape_type = st.selectbox("📌 목표 단면 형상 선택", ["정육각형", "사각형 (정/직사각)", "이형 (트랙/장원형)"], key="t1_shape")
 
     with col_in2:
         if shape_type == "정육각형":
-            W = st.number_input("✍️ 대면 치수 W (mm)", value=28.0, step=0.5, key="t1_w")
-            R = st.slider("🎚️ 모서리 R (mm)", 0.0, float(W/2.0), 2.9, 0.1, key="t1_r")
+            W = st.number_input("✍️ 대면 치수 W (mm)", value=19.0, step=0.5, key="t1_w")
+            R = st.slider("🎚️ 금형 다이스 R (mm)", 0.0, float(W/2.0), 1.0, 0.1, key="t1_r")
             H = W
             max_diag = (2 * W / np.sqrt(3)) - 2 * R * ((2 / np.sqrt(3)) - 1)
             A2 = (np.sqrt(3) / 2.0) * (W ** 2) - (2 * np.sqrt(3) - np.pi) * (R ** 2)
 
         elif shape_type == "사각형 (정/직사각)":
-            W = st.number_input("✍️ 폭 W (mm)", value=25.0, step=0.5, key="t1_w_sq")
-            H = st.number_input("✍️ 높이 H (mm)", value=25.0, step=0.5, key="t1_h_sq")
-            R = st.slider("🎚️ 모서리 R (mm)", 0.0, float(min(W, H)/2.0), 1.0, 0.1, key="t1_r_sq")
+            W = st.number_input("✍️ 폭 W (mm)", value=19.0, step=0.5, key="t1_w_sq")
+            H = st.number_input("✍️ 높이 H (mm)", value=19.0, step=0.5, key="t1_h_sq")
+            R = st.slider("🎚️ 금형 다이스 R (mm)", 0.0, float(min(W, H)/2.0), 1.0, 0.1, key="t1_r_sq")
             max_diag = np.sqrt(W**2 + H**2) - 2 * R * (np.sqrt(2) - 1)
             A2 = W * H - (4.0 - np.pi) * (R ** 2)
 
@@ -195,12 +195,26 @@ with tab1:
     elongation = A1 / A2 if A2 > 0 else 0.0
     d_eq = np.sqrt(4 * A2 / np.pi) if A2 > 0 else 0.0
 
+    # --- 감면율 기반 모서리 충전율(Corner Fill) 및 예측 대각선 보정 수식 ---
+    if RA > 0 and shape_type != "이형 (트랙/장원형)":
+        delta_r = 0.18 * W * np.exp(-5.2 * (RA / 100.0))
+        r_eff = R + delta_r
+        if shape_type == "정육각형":
+            max_diag_eff = (2 * W / np.sqrt(3)) - 2 * r_eff * ((2 / np.sqrt(3)) - 1)
+        else: # 사각형
+            max_diag_eff = np.sqrt(W**2 + H**2) - 2 * r_eff * (np.sqrt(2) - 1)
+        fill_ratio = min(100.0, max(0.0, (max_diag_eff / max_diag) * 100.0))
+    else:
+        r_eff = R
+        max_diag_eff = max_diag
+        fill_ratio = 100.0
+
     st.markdown("---")
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("소재 원형 단면적 (A₁)", f"{A1:.2f} mm²", f"원형 직경 Ø {d_in:.2f} mm", delta_color="off")
-    c2.metric("성형 후 단면적 (A₂)", f"{A2:.2f} mm²", f"등가원경 Ø {d_eq:.2f} mm", delta_color="off")
-    c3.metric("최대 대각/외경 치수 (D)", f"{max_diag:.2f} mm", f"대면 W {W:.2f} mm / R {R:.2f} mm", delta_color="off")
-    c4.metric("감면율 (RA)", f"{RA:.2f} %", f"연신율 {elongation:.2f} 배", delta_color="normal")
+    c2.metric("성형 후 단면적 (A₂)", f"{A2:.2f} mm²", f"감면율 (RA) {RA:.2f} %", delta_color="normal")
+    c3.metric("이론 대각 치수 (다이스기준)", f"{max_diag:.2f} mm", f"다이스 R {R:.2f} mm", delta_color="off")
+    c4.metric("🎯 예측 실측 대각 치수", f"{max_diag_eff:.2f} mm", f"모서리 충전율 {fill_ratio:.1f}% (예측 R {r_eff:.2f}mm)", delta_color="normal")
 
     col_l, col_r = st.columns(2)
     n_pts = 120
@@ -235,11 +249,11 @@ with tab1:
     col_r.plotly_chart(fig_3d, use_container_width=True)
 
 # ==========================================
-# [TAB 2] 인발력 산출 (PDF 분류 기준 DB 적용)
+# [TAB 2] 인발력 산출 및 실측 대각선 예측
 # ==========================================
 with tab2:
     st.subheader("2. 형상별 인발력 및 설비 부하(95% 한계) 검증")
-    st.markdown("✍️ **[노란색/파란색 박스]**에 입력 치수 및 강종을 KEY-IN하여 **현장 엑셀 인발력**과 설비 가동 여부를 연산합니다.")
+    st.markdown("✍️ **[노란색/파란색 박스]**에 입력 치수 및 강종을 KEY-IN하여 인발력과 **실측 예상 대각선**을 검증합니다.")
 
     machines_db = [
         {"name": "CD-0-2호기", "min_d": 3.8,  "max_d": 6.0,  "max_cap": 2.0},
@@ -342,24 +356,28 @@ with tab2:
         st.markdown("#### 📥 변형 유형 및 KEY-IN 치수 입력")
         draw_mode = st.selectbox("📌 인발 변형 유형 선택", ["1. 원형 - 원형", "2. 원형 - 사각", "3. 원형 - 육각"], key="t2_mode")
         
-        d_in_t2 = st.number_input("✍️ 투입 원형 선경 W/ROD (MM)", value=32.0, min_value=1.0, step=0.5, key="t2_din_keyin")
+        d_in_t2 = st.number_input("✍️ 투입 원형 선경 W/ROD (MM)", value=28.0, min_value=1.0, step=0.5, key="t2_din_keyin")
+
+        r_die_std = 1.0 # 기본 다이스 R 기준
 
         if draw_mode == "1. 원형 - 원형":
             d_out_t2 = st.number_input("✍️ 제품 원형 선경 (MM)", value=26.0, min_value=0.5, step=0.1, key="t2_dout_rd")
             a2_t2 = (np.pi / 4.0) * (d_out_t2 ** 2)
             diag_t2 = d_out_t2
+            diag_eff_t2 = d_out_t2
+            fill_ratio_t2 = 100.0
             prod_size_for_m = d_out_t2
 
         elif draw_mode == "2. 원형 - 사각":
-            w_out_t2 = st.number_input("✍️ 제품 사각 한변 치수 (MM)", value=18.0, min_value=0.5, step=0.1, key="t2_wout_sq")
+            w_out_t2 = st.number_input("✍️ 제품 사각 한변 치수 (MM)", value=19.0, min_value=0.5, step=0.1, key="t2_wout_sq")
             a2_t2 = w_out_t2 ** 2
-            diag_t2 = w_out_t2 * np.sqrt(2.0)
+            diag_t2 = w_out_t2 * np.sqrt(2.0) - 2 * r_die_std * (np.sqrt(2) - 1)
             prod_size_for_m = w_out_t2
 
         else: # 원형 - 육각
-            w_out_t2 = st.number_input("✍️ 제품 육각 대면 치수 W (MM)", value=26.0, min_value=0.5, step=0.1, key="t2_wout_hex")
+            w_out_t2 = st.number_input("✍️ 제품 육각 대면 치수 W (MM)", value=19.0, min_value=0.5, step=0.1, key="t2_wout_hex")
             a2_t2 = (np.sqrt(3.0) / 2.0) * (w_out_t2 ** 2)
-            diag_t2 = (2.0 * w_out_t2) / np.sqrt(3.0)
+            diag_t2 = (2.0 * w_out_t2) / np.sqrt(3.0) - 2 * r_die_std * ((2 / np.sqrt(3)) - 1)
             prod_size_for_m = w_out_t2
 
         st.markdown("---")
@@ -377,14 +395,27 @@ with tab2:
     ra_ratio = (a1_t2 - a2_t2) / a1_t2 if a1_t2 > 0 else 0.0
     ra_percent = ra_ratio * 100.0
 
+    # 모서리 충전 보정 연산 (2번 탭)
+    if draw_mode != "1. 원형 - 원형" and ra_ratio > 0:
+        delta_r_t2 = 0.18 * w_out_t2 * np.exp(-5.2 * ra_ratio)
+        r_eff_t2 = r_die_std + delta_r_t2
+        if draw_mode == "2. 원형 - 사각":
+            diag_eff_t2 = w_out_t2 * np.sqrt(2.0) - 2 * r_eff_t2 * (np.sqrt(2) - 1)
+        else:
+            diag_eff_t2 = (2.0 * w_out_t2) / np.sqrt(3.0) - 2 * r_eff_t2 * ((2 / np.sqrt(3)) - 1)
+        fill_ratio_t2 = min(100.0, max(0.0, (diag_eff_t2 / diag_t2) * 100.0))
+    else:
+        diag_eff_t2 = diag_t2
+        fill_ratio_t2 = 100.0
+
     with col_f2:
         st.markdown("#### 📐 자동 계산된 단면 및 감면율")
         st.write(f"• **투입 면적 (A₁):** `{a1_t2:.2f} mm²`")
         st.write(f"• **제품 면적 (A₂):** `{a2_t2:.3f} mm²`")
         st.write(f"• **감면율 (RA):** `{ra_ratio:.6f}` (`{ra_percent:.2f}%`)")
-        st.write(f"• **제품 대각 치수 (D):** `{diag_t2:.3f} mm`")
-        st.write(f"• **적용 강종 분류:** `{cat_choice}` ➔ `{steel_choice}`")
-        st.write(f"• **적용 T.S (W/ROD):** `{ts_kgf:.1f} kgf/mm²`")
+        st.write(f"• **이론 대각 치수 (다이스기준):** `{diag_t2:.3f} mm`")
+        st.write(f"• **🎯 예측 실측 대각 치수:** `{diag_eff_t2:.3f} mm` (충전율 `{fill_ratio_t2:.1f}%`)")
+        st.write(f"• **적용 강종 분류:** `{cat_choice}` ➔ `{steel_choice}` (`T.S {ts_kgf:.1f} kgf/mm²`)")
 
     if a1_t2 > a2_t2 and a2_t2 > 0:
         force_ton = (1.25 / 0.35) * a2_t2 * ts_kgf * (0.03 + 0.55 * ra_ratio) / 1000.0
@@ -392,7 +423,7 @@ with tab2:
         st.markdown("---")
         m_c1, m_c2 = st.columns(2)
         m_c1.metric("산출 인발력 (TON)", f"{force_ton:.3f} Ton", f"{force_ton * 9.80665:.2f} kN")
-        m_c2.metric("제품 대각 치수", f"{diag_t2:.2f} mm", f"변형 유형: {draw_mode}")
+        m_c2.metric("🎯 예측 실측 대각 치수", f"{diag_eff_t2:.2f} mm", f"이론치: {diag_t2:.2f}mm (충전율 {fill_ratio_t2:.1f}%)")
 
         st.info("💡 **적용 엑셀 공식:** 인발력 (TON) = 1.25 / 0.35 × 제품면적(A₂) × T.S × (0.03 + 0.55 × 감면율비율) / 1000")
 
